@@ -39,11 +39,32 @@ RTIMUSettings settings;                               // the settings object
 
 //  SERIAL_PORT_SPEED defines the speed to use for the debug serial port
 
-#define  SERIAL_PORT_SPEED  115200
+#define  SERIAL_PORT_SPEED  9600
 
 unsigned long lastDisplay;
 unsigned long lastRate;
 int sampleCount;
+
+void sendToSerial(RTVector3& vec){
+  String line;
+  line += "<x:";
+  line += (vec.x() * RTMATH_RAD_TO_DEGREE);
+  line += ">";
+  line += "<y:" ;
+  line += (vec.x() * RTMATH_RAD_TO_DEGREE);
+  line += ">";
+  line += "<z:" ;
+  line += (vec.x() * RTMATH_RAD_TO_DEGREE);
+  line += ">";
+  Serial.println(line);
+  /*
+    Serial.print("<x:"); Serial.print(vec.x() * RTMATH_RAD_TO_DEGREE);
+    Serial.print("><y:"); Serial.print(vec.y() * RTMATH_RAD_TO_DEGREE);
+    Serial.print("><z:"); Serial.print(vec.z() * RTMATH_RAD_TO_DEGREE);
+    Serial.println(">");
+    */
+}
+
 
 void setup()
 {
@@ -52,17 +73,20 @@ void setup()
     Serial.begin(SERIAL_PORT_SPEED);
     Wire.begin();
     imu = RTIMU::createIMU(&settings);                        // create the imu object
-  
+#ifdef VERBOSE
     Serial.print("ArduinoIMU starting using device "); Serial.println(imu->IMUName());
+#endif
     if ((errcode = imu->IMUInit()) < 0) {
+#ifdef VERBOSE
         Serial.print("Failed to init IMU: "); Serial.println(errcode);
+#endif
     }
-  
+#ifdef VERBOSE  
     if (imu->getCalibrationValid())
         Serial.println("Using compass calibration");
     else
         Serial.println("No valid compass calibration data");
-
+#endif
     lastDisplay = lastRate = millis();
     sampleCount = 0;
     
@@ -83,12 +107,14 @@ void loop()
         fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
         sampleCount++;
         if ((delta = now - lastRate) >= 1000) {
-            //Serial.print("Sample rate: "); Serial.print(sampleCount);
-            /*if (imu->IMUGyroBiasValid())
+
+#ifdef VERBOSE
+            Serial.print("Sample rate: "); Serial.print(sampleCount);
+            if (imu->IMUGyroBiasValid())
                 Serial.println(", gyro bias valid");
             else
-                Serial.println(", calculating gyro bias");*/
-        
+                Serial.println(", calculating gyro bias");
+#endif        
             sampleCount = 0;
             lastRate = now;
         }
@@ -97,8 +123,7 @@ void loop()
 //          RTMath::display("Gyro:", (RTVector3&)imu->getGyro());                // gyro data
 //          RTMath::display("Accel:", (RTVector3&)imu->getAccel());              // accel data
 //          RTMath::display("Mag:", (RTVector3&)imu->getCompass());              // compass data
-            RTMath::displayRollPitchYaw("Pose:", (RTVector3&)fusion.getFusionPose()); // fused output
-            Serial.println();
+            sendToSerial((RTVector3&)fusion.getFusionPose()); // formatted output
         }
     }
 }
