@@ -58,7 +58,7 @@ public class MyService extends Service {
             while( threadFlag ) {
                 readSerial();
                 try{
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -150,7 +150,7 @@ public class MyService extends Service {
         Intent intent = new Intent();
         //intent.putExtra("cmd", CMD_SHOW_TOAST);
         intent.putExtra("str", str);
-        intent.setAction("android.intent.action.cmdactivity");
+        intent.setAction("outputAction");
         sendBroadcast(intent);
     }
 

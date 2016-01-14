@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+    private double x, y, z;
     private Button mybutton = null;
     private TextView myTextView = null;
 
@@ -37,7 +38,7 @@ public class MainActivity extends Activity {
         mybutton.setOnClickListener(new ButtonListener());
         Intent i = new Intent(MainActivity.this, MyService.class);
         startService(i);
-        IntentFilter intentFilter = new IntentFilter("android.intent.action.cmdactivity");
+        IntentFilter intentFilter = new IntentFilter("outputAction");
         MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
         registerReceiver(myBroadCastReceiver, intentFilter);
     }
@@ -53,8 +54,29 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle myBundle = intent.getExtras();
-            String myStr = myBundle.getString("str");
-            myTextView.setText(myStr);
+            String info = myBundle.getString("str");
+            if (info.indexOf('<') == -1 || info.indexOf('>') == -1) {
+                return;
+            }
+            String detail = info.substring(info.indexOf('<'), info.lastIndexOf('>'));
+            Log.d("thss1", detail);
+            String data[] = detail.split("<");
+            for (int i = 0; i < data.length; ++i) {
+                if (data[i].length() == 0)
+                    continue;
+                data[i] = data[i].substring(0, data[i].length() - 1);
+                Log.d("thss1", data[i]);
+                String key[] = data[i].split(":");
+                if (key[0].length() == 1) {
+                    switch (key[0].charAt(0)) {
+                        case 'x': x = Double.valueOf(key[1]); break;
+                        case 'y': y = Double.valueOf(key[1]); break;
+                        case 'z': z = Double.valueOf(key[1]); break;
+                        default: break;
+                    }
+                }
+            }
+            myTextView.setText("x:" + x + "\ty:" + y + "\tz:" + z);
         }
     }
 }
