@@ -1,5 +1,8 @@
+import java.util.*;
+import java.text.*;
+
 public class Vector3D{
-    public double x, y, z;
+    public double x, y, z; //roll, pitch, yaw
     public Vector3D(double x_, double y_, double z_){
         x = x_;
         z = z_;
@@ -7,13 +10,14 @@ public class Vector3D{
         return;
     }
     String stringify(){
+        DecimalFormat df = new DecimalFormat("0.00");
         String str = new String();
         str += '(';
-        str += x;
+        str += df.format(x);
         str += ',';
-        str += y;
+        str += df.format(y);
         str += ',';
-        str += z;
+        str += df.format(z);
         str += ')';
         return str;
     }
