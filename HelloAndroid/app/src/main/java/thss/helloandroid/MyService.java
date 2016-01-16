@@ -69,7 +69,7 @@ public class MyService extends Service {
     public void myBtConnect() {
         showToast("Connecting...");
 
-//  BluetoothDevice mBtDevice = mBtAdapter.getRemoteDevice(HC_MAC);
+        //  BluetoothDevice mBtDevice = mBtAdapter.getRemoteDevice(HC_MAC);
         BluetoothDevice mBtDevice = null;
         Set<BluetoothDevice> mBtDevices = mBtAdapter.getBondedDevices();
         if ( mBtDevices.size() > 0 ) {
@@ -90,7 +90,7 @@ public class MyService extends Service {
 
         mBtAdapter.cancelDiscovery();
 
-    /* Setup connection */
+        /* Setup connection */
         try {
             mBtSocket.connect();
             showToast("Connect bluetooth success");
@@ -106,7 +106,7 @@ public class MyService extends Service {
             }
         }
 
-    /* I/O initialize */
+        /* I/O initialize */
         if ( mBtFlag ) {
             try {
                 inStream  = mBtSocket.getInputStream();
@@ -118,6 +118,7 @@ public class MyService extends Service {
         showToast("Bluetooth is ready!");
     }
 
+    //获取信息
     public int readSerial() {
         int ret = 0;
         byte[] rsp = null;
@@ -136,6 +137,7 @@ public class MyService extends Service {
         return ret;
     }
 
+    //发送信息
     public void writeSerial(int value) {
         String ha = "" + value;
         try {
@@ -146,9 +148,9 @@ public class MyService extends Service {
         }
     }
 
+    //向MainActivity发送广播
     public void showToast(String str) {
         Intent intent = new Intent();
-        //intent.putExtra("cmd", CMD_SHOW_TOAST);
         intent.putExtra("str", str);
         intent.setAction("outputAction");
         sendBroadcast(intent);
