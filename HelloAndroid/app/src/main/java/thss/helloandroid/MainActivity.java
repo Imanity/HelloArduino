@@ -89,6 +89,9 @@ public class MainActivity extends Activity {
             paint.setTextSize(25);
             paint.setStrokeWidth(3);
             canvas.drawText("roll:" + roll + "\tpitch:" + pitch + "\tyaw:" + yaw, 20, 20, paint);
+            canvas.drawText("x:" + vector[1].x, 20, 60, paint);
+            canvas.drawText("y:" + vector[1].y, 20, 80, paint);
+            canvas.drawText("z:" + vector[1].z, 20, 100, paint);
             super.onDraw(canvas);
             //绘制火柴人
             float centerX = screenWidth / 2;

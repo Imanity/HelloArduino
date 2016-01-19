@@ -1,6 +1,13 @@
 public class Translator{
     public static double degreeToRadian = 0.01745329251994329576923690768489; // Pi / 180;
 
+
+    /*
+    返回直角坐标，表示手臂的指向。
+    xOy 平面为水平面。具体东南西北哪个方向，谜。。
+    z 轴竖直指向天顶。
+    */
+
     public static Vector3D rpy_to_xyz(Vector3D rollPitchYaw){ //in: degrees
         double roll = rollPitchYaw.x;
         double pitch = rollPitchYaw.y;

@@ -6,7 +6,10 @@ wrap them, and send to Serial (COM, or Bluetooth on TX/RX).
 By Zhaoyang, Jan 2016.
 
 */
-
+/*
+ * 传感器的放置：
+ * 传感器的 xOy 平面与手臂背侧面重合，x 轴指向手指尖；z 轴指向体外。
+ */
 //uncomment this to get detailed status report on Serial
 //#define VERBOSE
 
@@ -60,6 +63,7 @@ int sampleCount;
 
 void sendToSerial(RTVector3& vec){
   String line;
+  //x, y, z: roll, pitch, yaw
   line += "<x:";
   line += (vec.x() * RTMATH_RAD_TO_DEGREE);
   line += ">";
