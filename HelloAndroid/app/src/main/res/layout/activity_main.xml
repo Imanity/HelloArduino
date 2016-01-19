@@ -4,16 +4,5 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
 >
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Hello"
-        android:id="@+id/text"
-    />
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="扫描周围的蓝牙设备"
-        android:id="@+id/btn2"
-    />
+
 </LinearLayout>
