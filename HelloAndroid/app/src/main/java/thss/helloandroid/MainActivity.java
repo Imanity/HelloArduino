@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Bundle myBundle = intent.getExtras();
             String info = myBundle.getString("str");
-            if (info.indexOf('<') == -1 || info.indexOf('>') == -1) { //接收信息不符合数据格式
+            if (info.indexOf('<') == -1 || info.indexOf('>') == -1 || info.indexOf('<') >= info.lastIndexOf('>')) { //接收信息不符合数据格式
                 //myTextView.setText(info);
             } else {
                 String detail = info.substring(info.indexOf('<'), info.lastIndexOf('>'));
