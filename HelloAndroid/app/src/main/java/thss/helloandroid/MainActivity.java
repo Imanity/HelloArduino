@@ -100,17 +100,17 @@ public class MainActivity extends Activity {
             //头部
             canvas.drawCircle(centerX, centerY - 30, 30, paint);
             //躯干
-            canvas.drawLine(centerX, centerY, centerX + (float) vector[0].x * singleLength * 2, centerY + (float) vector[0].z * singleLength * 2, paint);
+            canvas.drawLine(centerX, centerY, centerX + (float) vector[0].x * singleLength * 2, centerY - (float) vector[0].z * singleLength * 2, paint);
             //大臂
             float tmpX1 = centerX + (float)vector[1].x * singleLength;
             float tmpX2 = centerX + (float)vector[2].x * singleLength;
-            float tmpY1 = centerY + (float)vector[1].z * singleLength;
-            float tmpY2 = centerY + (float)vector[2].z * singleLength;
+            float tmpY1 = centerY - (float)vector[1].z * singleLength;
+            float tmpY2 = centerY - (float)vector[2].z * singleLength;
             canvas.drawLine(centerX, centerY, tmpX1, tmpY1, paint);
             canvas.drawLine(centerX, centerY, tmpX2, tmpY2, paint);
             //小臂
-            canvas.drawLine(tmpX1, tmpY1, tmpX1 + (float)vector[3].x * singleLength, tmpY1 + (float)vector[3].z * singleLength, paint);
-            canvas.drawLine(tmpX2, tmpY2, tmpX2 + (float)vector[4].x * singleLength, tmpY2 + (float)vector[4].z * singleLength, paint);
+            canvas.drawLine(tmpX1, tmpY1, tmpX1 + (float)vector[3].x * singleLength, tmpY1 - (float)vector[3].z * singleLength, paint);
+            canvas.drawLine(tmpX2, tmpY2, tmpX2 + (float)vector[4].x * singleLength, tmpY2 - (float)vector[4].z * singleLength, paint);
         }
     }
 
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
         //躯干
         vector[0].x = 0;
         vector[0].y = 0;
-        vector[0].z = 1;
+        vector[0].z = -1;
         //左大臂
         //Modified during broadcasting
         //右大臂
@@ -129,10 +129,10 @@ public class MainActivity extends Activity {
         //左小臂
         vector[3].x = 0;
         vector[3].y = 0;
-        vector[3].z = 1;
+        vector[3].z = -1;
         //右小臂
         vector[4].x = 0;
         vector[4].y = 0;
-        vector[4].z = -1;
+        vector[4].z = 1;
     }
 }
