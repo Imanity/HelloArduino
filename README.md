@@ -37,5 +37,8 @@
 - [Arduino UNO 3 套件](https://item.taobao.com/item.htm?id=40407396235 "arduino uno r3 arduino入门套件 arduino初学者学习套件 开发板") * 1 ¥136.00
 - [HC-06 蓝牙模块](https://item.taobao.com/item.htm?id=41265336336 "HC-06 无线蓝牙串口透传模块 无线串口通讯 HC-06从机模块") * 1 ¥16.00
 - [MPU-9250 九轴传感器模块](https://item.taobao.com/item.htm?id=42408784668 "磁场MPU9250 9DOF 九轴/9轴姿态 加速度 陀螺仪 指南针磁场传感器") * 5 ¥159.42
+- [Arduino nano](https://detail.tmall.com/item.htm?id=522223298784 "LANGUO Arduino nano V3.0 ATMEGA328P 改进版 无焊板 无配线") * 3 ¥36.6
+- [彩色杜邦线 40p 20cm](https://detail.tmall.com/item.htm?id=45612590918 "公对母、公对公、母对母各一件") 共 120 根，¥10.4
 
-以上各项，加运费 ¥5，总计 ¥316.42
+以上各项，加运费共 ¥15，总计 ¥373.42
+
