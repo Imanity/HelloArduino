@@ -13,69 +13,137 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
-    private double roll = 0, pitch = 0, yaw = 0;
+    private Vector3D[] rollPitchYaw;
     private Vector3D[] vector;
     private int screenWidth = 0, screenHeight = 0;
 
     private MyView view;
+
+
+    public void showToast(String str){
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         view = new MyView(this);
         view.setBackgroundColor(Color.WHITE);
         setContentView(view);
-        //初始化
+
+        //成员变量初始化
         vector = new Vector3D[5];
+        rollPitchYaw = new Vector3D[5];
         for (int i = 0; i < 5; ++i) {
             vector[i] = new Vector3D(0, 0, 0);
         }
-        testData(); //Delete it after test
+        for (int i = 0; i < 5; ++i) {
+            rollPitchYaw[i] = new Vector3D(0, 0, 0);
+        }
+
+        testData(); //TODO: Delete it after test
+
+
         //获取屏幕分辨率
         WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         screenWidth = display.getWidth();
         screenHeight = display.getHeight();
+
         //接收广播
         Intent i = new Intent(MainActivity.this, MyService.class);
         startService(i);
-        IntentFilter intentFilter = new IntentFilter("outputAction");
-        MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
-        registerReceiver(myBroadCastReceiver, intentFilter);
+        registerReceiver(new BluetoothChunkReceiver(), new IntentFilter("bluetoothChunk"));
+        registerReceiver(new BluetoothToastReceiver(), new IntentFilter("bluetoothToast"));
     }
 
     //获得并解析蓝牙传输信息
-    private class MyBroadCastReceiver extends BroadcastReceiver {
+    private class BluetoothChunkReceiver extends BroadcastReceiver {
+
+        private String lastChunk;
+
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle myBundle = intent.getExtras();
             String info = myBundle.getString("str");
-            if (info.indexOf('<') == -1 || info.indexOf('>') == -1 || info.indexOf('<') >= info.lastIndexOf('>')) { //接收信息不符合数据格式
-                //myTextView.setText(info);
-            } else {
-                String detail = info.substring(info.indexOf('<'), info.lastIndexOf('>'));
-                String data[] = detail.split("<");
-                for (int i = 0; i < data.length; ++i) {
-                    if (data[i].length() == 0)
-                        continue;
-                    data[i] = data[i].substring(0, data[i].length() - 1);
-                    String key[] = data[i].split(":");
-                    if (key[0].length() == 1) {
-                        switch (key[0].charAt(0)) {
-                            case 'x': roll = Double.valueOf(key[1]); break;
-                            case 'y': pitch = Double.valueOf(key[1]); break;
-                            case 'z': yaw = Double.valueOf(key[1]); break;
-                            default: break;
-                        }
-                    }
-                }
+            Log.v("bluetooth chunk", info);
+            if(parseChunk(info) > 0) {
+                //更新视图
+                view.postInvalidate();
             }
-            vector[1] = Translator.rpy_to_xyz(new Vector3D(roll, pitch, yaw));
-            view.postInvalidate();
+        }
+
+        //解析数据块 `><x:2.33><y:6.66><z:`，返回成功解析的数据个数
+        public int parseChunk(String chunk){
+
+            if (chunk.indexOf('<') == -1 || chunk.indexOf('>') == -1 || chunk.indexOf('<') >= chunk.lastIndexOf('>')) {
+                //不含完整块
+                Log.d("bluetooth chunk", "invalid data chunk");
+                return 0;
+            } else {
+                String numbers = chunk.substring(chunk.indexOf('<'), chunk.lastIndexOf('>'));
+                return parseNumbers(numbers);
+            }
+        }
+
+        //解析多个数字 `<x:2.33><y:6.66>`
+        public int parseNumbers(String numbers){
+            String data[] = numbers.split("<");
+            int sum=0;
+            for (int i = 0; i < data.length; ++i) {
+                if (data[i].length() == 0)
+                    continue;
+                sum += parseNumber(data[i]);
+            }
+            return sum;
+        }
+
+        //解析单个数字 `<x:2.33>`
+        public int parseNumber(String number){
+            number = number.substring(0, number.length() - 1);
+            String key[] = number.split(":");
+            if (key[0].length() == 1) {
+                char chr = key[0].charAt(0);
+
+                int i = ('z' - chr) / 3;
+                /*
+                x,y,z -> 0
+                u,v,w -> 1
+                r,s,t -> 2
+                ...
+                 */
+
+                if(i==0) i = 1; else if(i==1) i = 3; //仅供测试
+
+                switch (chr % 3) {
+                    case 0: rollPitchYaw[i].x = Double.valueOf(key[1]); break;
+                    case 1: rollPitchYaw[i].y = Double.valueOf(key[1]); break;
+                    case 2: rollPitchYaw[i].z = Double.valueOf(key[1]); break;
+                    default: return 0;
+                }
+
+                int x[]={1, 3};
+                for(int j : x)//仅供测试
+                //for(int j=0; j<5; j++)
+                    vector[j] = Translator.rpy_to_xyz(rollPitchYaw[j]);
+                return 1;
+            }
+            return 0;
         }
     }
+
+    private class BluetoothToastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle myBundle = intent.getExtras();
+            String info = myBundle.getString("str");
+            Log.v("bluetooth toast", info);
+            showToast(info);
+        }
+    }
+
 
     //绘图类
     class MyView extends View {
@@ -88,10 +156,10 @@ public class MainActivity extends Activity {
             //输出文字信息
             paint.setTextSize(25);
             paint.setStrokeWidth(3);
-            canvas.drawText("roll:" + roll + "\tpitch:" + pitch + "\tyaw:" + yaw, 20, 20, paint);
-            canvas.drawText("x:" + vector[1].x, 20, 60, paint);
-            canvas.drawText("y:" + vector[1].y, 20, 80, paint);
-            canvas.drawText("z:" + vector[1].z, 20, 100, paint);
+            canvas.drawText("rpy0" + rollPitchYaw[1].stringify(), 20, 20, paint);
+            canvas.drawText("rpy1" + rollPitchYaw[3].stringify(), 20, 40, paint);
+            canvas.drawText("xyz0" + vector[1].stringify(), 20, 60, paint);
+            canvas.drawText("xyz1" + vector[3].stringify(), 20, 80, paint);
             super.onDraw(canvas);
             //绘制火柴人
             float centerX = screenWidth / 2;
@@ -121,7 +189,9 @@ public class MainActivity extends Activity {
         vector[0].y = 0;
         vector[0].z = -1;
         //左大臂
-        //Modified during broadcasting
+        vector[1].x = 1;
+        vector[1].y = 0;
+        vector[1].z = 0;
         //右大臂
         vector[2].x = -1;
         vector[2].y = 0;

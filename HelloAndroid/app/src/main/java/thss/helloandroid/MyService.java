@@ -33,18 +33,18 @@ public class MyService extends Service {
     private void myStartService() {
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         if ( mBtAdapter == null ) {
-            showToast("Bluetooth unused.");
+            sendToast("Bluetooth unused.");
             mBtFlag  = false;
             return;
         }
         if ( !mBtAdapter.isEnabled() ) {
             mBtFlag  = false;
             //myStopService();
-            showToast("Open bluetooth then restart program!!");
+            sendToast("Open bluetooth then restart program!!");
             return;
         }
 
-        showToast("Start searching!!");
+        sendToast("Start searching!!");
         threadFlag = true;
         mThread = new MyThread();
         mThread.start();
@@ -67,7 +67,7 @@ public class MyService extends Service {
     }
 
     public void myBtConnect() {
-        showToast("Connecting...");
+        sendToast("Connecting...");
 
         //  BluetoothDevice mBtDevice = mBtAdapter.getRemoteDevice(HC_MAC);
         BluetoothDevice mBtDevice = null;
@@ -76,7 +76,7 @@ public class MyService extends Service {
             for ( Iterator<BluetoothDevice> iterator = mBtDevices.iterator();
                   iterator.hasNext(); ) {
                 mBtDevice = (BluetoothDevice)iterator.next();
-                showToast(mBtDevice.getName() + "|" + mBtDevice.getAddress());
+                sendToast(mBtDevice.getName() + "|" + mBtDevice.getAddress());
             }
         }
 
@@ -85,7 +85,7 @@ public class MyService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
             mBtFlag = false;
-            showToast("Create bluetooth socket error");
+            sendToast("Create bluetooth socket error");
         }
 
         mBtAdapter.cancelDiscovery();
@@ -93,12 +93,12 @@ public class MyService extends Service {
         /* Setup connection */
         try {
             mBtSocket.connect();
-            showToast("Connect bluetooth success");
+            sendToast("Connect bluetooth success");
             //Log.i(TAG, "Connect " + HC_MAC + " Success!");
         } catch (IOException e) {
             e.printStackTrace();
             try {
-                showToast("Connect error, close");
+                sendToast("Connect error, close");
                 mBtSocket.close();
                 mBtFlag = false;
             } catch (IOException e1) {
@@ -115,7 +115,7 @@ public class MyService extends Service {
                 e.printStackTrace();
             }
         }
-        showToast("Bluetooth is ready!");
+        sendToast("Bluetooth is ready!");
     }
 
     //获取信息
@@ -129,7 +129,7 @@ public class MyService extends Service {
         try {
             rsp = new byte[inStream.available()];
             ret = inStream.read(rsp);
-            showToast(new String(rsp));
+            sendChunk(new String(rsp));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -149,10 +149,17 @@ public class MyService extends Service {
     }
 
     //向MainActivity发送广播
-    public void showToast(String str) {
+    public void sendToast(String str) {
         Intent intent = new Intent();
         intent.putExtra("str", str);
-        intent.setAction("outputAction");
+        intent.setAction("bluetoothToast");
+        sendBroadcast(intent);
+    }
+
+    public void sendChunk(String str) {
+        Intent intent = new Intent();
+        intent.putExtra("str", str);
+        intent.setAction("bluetoothChunk");
         sendBroadcast(intent);
     }
 
