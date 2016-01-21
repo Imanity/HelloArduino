@@ -1,6 +1,5 @@
 ## 代码
-- 主机: write.ino
-- 从机: read.ino
+- 主机: Master.ino
+- 从机: Slave.ino
 ## 连接方式
-两Arduino板 10 11 12 13 端口相连, 共5V高电平, 共地
-## 目测只能串行连接
+- 主机: 8 9 10等接口作为SS, 分别与从机SS相连, 11 12 13 作为MISO MOSI SCLK与从机对应接口相连
