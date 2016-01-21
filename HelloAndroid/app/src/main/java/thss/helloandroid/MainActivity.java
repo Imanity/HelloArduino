@@ -62,28 +62,44 @@ public class MainActivity extends Activity {
     //获得并解析蓝牙传输信息
     private class BluetoothChunkReceiver extends BroadcastReceiver {
 
-        private String lastChunk;
+        private String LOG_TAG = "bluetooth chunk";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle myBundle = intent.getExtras();
             String info = myBundle.getString("str");
-            Log.v("bluetooth chunk", info);
+            Log.v(LOG_TAG, info);
+
+
             if(parseChunk(info) > 0) {
                 //更新视图
                 view.postInvalidate();
             }
+
         }
+
+
+
+        private String lastChunk = ""; //上一个数据块中最后一个 '>' 之后的部分
 
         //解析数据块 `><x:2.33><y:6.66><z:`，返回成功解析的数据个数
         public int parseChunk(String chunk){
 
-            if (chunk.indexOf('<') == -1 || chunk.indexOf('>') == -1 || chunk.indexOf('<') >= chunk.lastIndexOf('>')) {
-                //不含完整块
-                Log.d("bluetooth chunk", "invalid data chunk");
+            chunk = lastChunk + chunk;
+
+            int left = chunk.indexOf('<');
+            int right = chunk.lastIndexOf('>');
+
+            if (left == -1) {
+                if(right == -1)
+                    lastChunk = "";
+                else
+                    lastChunk = chunk.substring(right + 1);
+                Log.d(LOG_TAG, "invalid data chunk");
                 return 0;
             } else {
-                String numbers = chunk.substring(chunk.indexOf('<'), chunk.lastIndexOf('>'));
+                String numbers = chunk.substring(left, right + 1);
+                lastChunk = chunk.substring(right + 1);
                 return parseNumbers(numbers);
             }
         }
