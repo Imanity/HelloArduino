@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
             rollPitchYaw[i] = new Vector3D(0, 0, 0);
         }
 
-        testData(); //TODO: Delete it after test
+        initData();
 
 
         //获取屏幕分辨率
@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
                     default: return 0;
                 }
 
-                int x[]={1, 3};
+                int x[]={1, 2, 3};
                 for(int j : x)//仅供测试
                 //for(int j=0; j<5; j++)
                     vector[j] = Translator.rpy_to_xyz(rollPitchYaw[j]);
@@ -198,8 +198,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    //测试用,测试后删除
-    private void testData() {
+    //For init
+    private void initData() {
         //躯干
         vector[0].x = 0;
         vector[0].y = 0;
