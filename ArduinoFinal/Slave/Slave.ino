@@ -42,7 +42,7 @@ void SlaveInit(void) {
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   Wire.begin();
-  for(int i=0; i<cntSensors; i++)
+  for(int i = 0; i < cntSensors; i++)
     sensors[i].init(i + 1 + 2 * Offset_ID);
   Serial.println("ending setup");
   // Initialize SPI Slave.
@@ -54,17 +54,13 @@ void loop() {
   for(int i=0; i<cntSensors; i++){
     sensors[i].refresh();
   }
-  
-  if (!digitalRead(SS)) {
-    //master wants me to check-in
-    for(int j = 0; j < cntSensors; j++) {
-      String line = sensors[j].getString();
-      int len = line.length();
-      for(int i = 0; i < len; ++i) {
-        SPI.transfer(line.charAt(i));
-      }
-      Serial.println(line);
+  for(int j = 0; j < cntSensors; j++) {
+    String line = sensors[j].getString();
+    int len = line.length();
+    for(int i = 0; i < len; ++i) {
+      SPI.transfer(line.charAt(i));
     }
-  }
+    //Serial.println(line);
+    }
 }
 

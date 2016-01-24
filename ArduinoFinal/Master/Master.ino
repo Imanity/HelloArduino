@@ -34,7 +34,7 @@ String strBuffer;
 byte SPItransfer(byte value) {
   SPDR = value;
   while(!(SPSR & (1<<SPIF)));
-  delay(5);
+  delay(1);
   return SPDR;
 }
 
@@ -58,13 +58,10 @@ void loop() {
   byte ch;
   int currentTime = 0;
   String str = "";
-  while(currentTime != 3) {
+  while(currentTime != 6) {
     digitalWrite(mySS, LOW);
     ch = SPItransfer(255);
     if (ch != 255) {
-      if (ch == 'u') {
-        str += '<';
-      }
       str += char(ch);
     }
     // Disable slave.
@@ -75,6 +72,11 @@ void loop() {
     }
   }
   currentTime = 0;
+  //Char before u
+  int pos = str.indexOf('u');
+  if (pos && str[pos - 1] != '<') {
+    str = str.substring(0, pos) + "<" + str.substring(pos, str.length());
+  }
   Serial.print(str);
   str = "";
   
