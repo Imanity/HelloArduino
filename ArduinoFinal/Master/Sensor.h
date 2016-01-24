@@ -54,19 +54,15 @@ public:
             fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
         }
     }
-    void sendToSerial(){
-
+    
+    String getString() {
       RTVector3 vec = fusion.getFusionPose();
-      
       char x = 'x', y = x+1, z = x+2;
       x -= ID*3;
       y -= ID*3;
       z -= ID*3;
-      
       //x, y, z: roll, pitch, yaw
- 
       String line;
-
       line += "<";
       line += x;
       line += ":" ;
@@ -82,10 +78,11 @@ public:
       line += ":" ;
       line += (vec.z() * RTMATH_RAD_TO_DEGREE);
       line += ">";
-      Serial.print(line);
-      
-      if(ID==0)
-        ;//Serial.println();//for debug only
+      return line;
+    }
+    
+    void sendToSerial(){
+      Serial.print(getString());
     }
 
 };

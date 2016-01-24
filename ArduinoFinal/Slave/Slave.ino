@@ -25,8 +25,6 @@ Sensor sensors[cntSensors];
 #define DISPLAY_INTERVAL 50      // interval between pose displays
 #define SERIAL_PORT_SPEED 9600
 
-unsigned long lastDisplay;
-
 //传感器ID偏移,0号nano为0,1号nano为1
 #define Offset_ID 0
 
@@ -46,7 +44,6 @@ void setup() {
   Wire.begin();
   for(int i=0; i<cntSensors; i++)
     sensors[i].init(i + 1 + 2 * Offset_ID);
-  lastDisplay = millis();
   Serial.println("ending setup");
   // Initialize SPI Slave.
   SlaveInit();
@@ -54,22 +51,19 @@ void setup() {
 
 // The loop function runs continuously after setup().
 void loop() {
-  // Slave Enabled?
+  for(int i=0; i<cntSensors; i++){
+    sensors[i].refresh();
+  }
+  
   if (!digitalRead(SS)) {
-    unsigned long now = millis();
-    bool itIsTimeToSendData = (now - lastDisplay) >= DISPLAY_INTERVAL;
-    for(int i=0; i<cntSensors; i++){
-      sensors[i].refresh();
-    }
-    if(itIsTimeToSendData){
-      lastDisplay = now;
-      for(int j = 0; j < cntSensors; j++) {
-        String tmp = sensors[j].getSensorData();
-        for(int i = 0; i < tmp.length(); ++i) {
-          SPI.transfer(tmp.charAt(i));
-          Serial.print(tmp.charAt(i));
-        }
+    //master wants me to check-in
+    for(int j = 0; j < cntSensors; j++) {
+      String line = sensors[j].getString();
+      int len = line.length();
+      for(int i = 0; i < len; ++i) {
+        SPI.transfer(line.charAt(i));
       }
+      Serial.println(line);
     }
   }
 }

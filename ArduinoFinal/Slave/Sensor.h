@@ -55,7 +55,7 @@ public:
         }
     }
     
-    String getSensorData() {
+    String getString() {
       RTVector3 vec = fusion.getFusionPose();
       char x = 'x', y = x+1, z = x+2;
       x -= ID*3;
@@ -82,37 +82,7 @@ public:
     }
     
     void sendToSerial(){
-
-      RTVector3 vec = fusion.getFusionPose();
-      
-      char x = 'x', y = x+1, z = x+2;
-      x -= ID*3;
-      y -= ID*3;
-      z -= ID*3;
-      
-      //x, y, z: roll, pitch, yaw
- 
-      String line;
-
-      line += "<";
-      line += x;
-      line += ":" ;
-      line += (vec.x() * RTMATH_RAD_TO_DEGREE);
-      line += ">";
-      line += "<";
-      line += y;
-      line += ":" ;
-      line += (vec.y() * RTMATH_RAD_TO_DEGREE);
-      line += ">";
-      line += "<";
-      line += z;
-      line += ":" ;
-      line += (vec.z() * RTMATH_RAD_TO_DEGREE);
-      line += ">";
-      Serial.print(line);
-      
-      if(ID==0)
-        ;//Serial.println();//for debug only
+      Serial.print(getString());
     }
 
 };

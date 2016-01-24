@@ -95,7 +95,8 @@ public class MainActivity extends Activity {
                         lastChunk = "";
                     else
                         lastChunk = chunk.substring(right + 1);
-                    Log.d(LOG_TAG, "invalid data chunk");
+                    Log.w(LOG_TAG, chunk + " INVALID");
+
                     return 0;
                 } else {
                     String numbers = chunk.substring(left, right + 1);
@@ -103,7 +104,8 @@ public class MainActivity extends Activity {
                     return parseNumbers(numbers);
                 }
             } catch (Exception e) {
-                Log.e(LOG_TAG, chunk);
+                Log.e(LOG_TAG, chunk + " EXCEPTION");
+                e.printStackTrace();
                 return 0;
             }
         }
@@ -120,9 +122,9 @@ public class MainActivity extends Activity {
             return sum;
         }
 
-        //解析单个数字 `<x:2.33>`
+        //解析单个数字 `x:2.33>`
         public int parseNumber(String number){
-            number = number.substring(0, number.length() - 1);
+            number = number.substring(0, number.indexOf('>'));
             String key[] = number.split(":");
             if (key[0].length() == 1) {
                 char chr = key[0].charAt(0);
