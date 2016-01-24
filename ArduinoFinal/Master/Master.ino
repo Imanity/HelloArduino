@@ -34,7 +34,7 @@ String strBuffer;
 byte SPItransfer(byte value) {
   SPDR = value;
   while(!(SPSR & (1<<SPIF)));
-  delay(10);
+  delay(5);
   return SPDR;
 }
 
@@ -55,20 +55,30 @@ void setup() {
 
 // The loop() function runs continuously after setup().
 void loop() {
-  digitalWrite(mySS, LOW);
-  byte ch = SPItransfer(255);
-  if (ch != 255) {
-    if (ch == 'u') {
-      Serial.print(strBuffer);
-      strBuffer = "<u";
-    } else {
-      strBuffer += char(ch);
+  byte ch;
+  int currentTime = 0;
+  String str = "";
+  while(currentTime != 3) {
+    digitalWrite(mySS, LOW);
+    ch = SPItransfer(255);
+    if (ch != 255) {
+      if (ch == 'u') {
+        str += '<';
+      }
+      str += char(ch);
+    }
+    // Disable slave.
+    digitalWrite(mySS, HIGH);
+    // Refresh currentTime
+    if (char(ch) == '>') {
+      currentTime++;
     }
   }
-  // Disable slave.
-  digitalWrite(mySS, HIGH);
+  currentTime = 0;
+  Serial.print(str);
+  str = "";
   
-  //Send sensor data
+  // Send sensor data
   unsigned long now = millis();
   bool itIsTimeToSendData = (now - lastDisplay) >= DISPLAY_INTERVAL;
   for(int i=0; i<cntSensors; i++){

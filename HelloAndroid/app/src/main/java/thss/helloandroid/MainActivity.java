@@ -84,23 +84,27 @@ public class MainActivity extends Activity {
 
         //解析数据块 `><x:2.33><y:6.66><z:`，返回成功解析的数据个数
         public int parseChunk(String chunk){
+            try {
+                chunk = lastChunk + chunk;
 
-            chunk = lastChunk + chunk;
+                int left = chunk.indexOf('<');
+                int right = chunk.lastIndexOf('>');
 
-            int left = chunk.indexOf('<');
-            int right = chunk.lastIndexOf('>');
-
-            if (left == -1) {
-                if(right == -1)
-                    lastChunk = "";
-                else
+                if (left == -1) {
+                    if(right == -1)
+                        lastChunk = "";
+                    else
+                        lastChunk = chunk.substring(right + 1);
+                    Log.d(LOG_TAG, "invalid data chunk");
+                    return 0;
+                } else {
+                    String numbers = chunk.substring(left, right + 1);
                     lastChunk = chunk.substring(right + 1);
-                Log.d(LOG_TAG, "invalid data chunk");
+                    return parseNumbers(numbers);
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, chunk);
                 return 0;
-            } else {
-                String numbers = chunk.substring(left, right + 1);
-                lastChunk = chunk.substring(right + 1);
-                return parseNumbers(numbers);
             }
         }
 

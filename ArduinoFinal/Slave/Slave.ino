@@ -64,11 +64,11 @@ void loop() {
     if(itIsTimeToSendData){
       lastDisplay = now;
       for(int j = 0; j < cntSensors; j++) {
-         String tmp = sensors[j].getSensorData();
-         for(int i = 0; i < tmp.length(); ++i) {
+        String tmp = sensors[j].getSensorData();
+        for(int i = 0; i < tmp.length(); ++i) {
           SPI.transfer(tmp.charAt(i));
           Serial.print(tmp.charAt(i));
-         }
+        }
       }
     }
   }
