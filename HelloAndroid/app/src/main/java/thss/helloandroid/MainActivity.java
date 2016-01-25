@@ -18,10 +18,13 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private Vector3D[] rollPitchYaw;
     private Vector3D[] vector;
+    private Vector3D[] nowVector;
     private int screenWidth = 0, screenHeight = 0;
 
     private MyView view;
 
+    private boolean threadFlag = false;
+    private MyThread mThread = null;
 
     public void showToast(String str){
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
@@ -35,16 +38,19 @@ public class MainActivity extends Activity {
 
         //成员变量初始化
         vector = new Vector3D[5];
+        nowVector = new Vector3D[5];
         rollPitchYaw = new Vector3D[5];
         for (int i = 0; i < 5; ++i) {
             vector[i] = new Vector3D(0, 0, 0);
+        }
+        for (int i = 0; i < 5; ++i) {
+            nowVector[i] = new Vector3D(0, 0, 0);
         }
         for (int i = 0; i < 5; ++i) {
             rollPitchYaw[i] = new Vector3D(0, 0, 0);
         }
 
         initData();
-
 
         //获取屏幕分辨率
         WindowManager windowManager = getWindowManager();
@@ -57,6 +63,32 @@ public class MainActivity extends Activity {
         startService(i);
         registerReceiver(new BluetoothChunkReceiver(), new IntentFilter("bluetoothChunk"));
         registerReceiver(new BluetoothToastReceiver(), new IntentFilter("bluetoothToast"));
+
+        //开始多线程刷新绘图
+        threadFlag = true;
+        mThread = new MyThread();
+        mThread.start();
+    }
+
+    //多线程刷新视图
+    public class MyThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            while( threadFlag ) {
+                for (int i = 0; i < 5; ++i) {
+                    nowVector[i].x += (vector[i].x - nowVector[i].x) / 4;
+                    nowVector[i].y += (vector[i].y - nowVector[i].y) / 4;
+                    nowVector[i].z += (vector[i].z - nowVector[i].z) / 4;
+                }
+                view.postInvalidate();
+                try{
+                    Thread.sleep(20);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     //获得并解析蓝牙传输信息
@@ -70,15 +102,12 @@ public class MainActivity extends Activity {
             String info = myBundle.getString("str");
             Log.v(LOG_TAG, info);
 
-
-            if(parseChunk(info) > 0) {
+            /*if(parseChunk(info) > 0) {
                 //更新视图
                 view.postInvalidate();
-            }
-
+            }*/
+            parseChunk(info);
         }
-
-
 
         private String lastChunk = ""; //上一个数据块中最后一个 '>' 之后的部分
 
@@ -137,8 +166,6 @@ public class MainActivity extends Activity {
                 ...
                  */
 
-                if(i==0) i = 1; else if(i==1) i = 3; //仅供测试
-
                 switch (chr % 3) {
                     case 0: rollPitchYaw[i].x = Double.valueOf(key[1]); break;
                     case 1: rollPitchYaw[i].y = Double.valueOf(key[1]); break;
@@ -146,9 +173,7 @@ public class MainActivity extends Activity {
                     default: return 0;
                 }
 
-                int x[]={1, 2, 3};
-                for(int j : x)//仅供测试
-                //for(int j=0; j<5; j++)
+                for(int j = 0; j < 5; j++)
                     vector[j] = Translator.rpy_to_xyz(rollPitchYaw[j]);
                 return 1;
             }
@@ -178,10 +203,12 @@ public class MainActivity extends Activity {
             //输出文字信息
             paint.setTextSize(25);
             paint.setStrokeWidth(3);
+            /*
             canvas.drawText("rpy0" + rollPitchYaw[1].stringify(), 20, 20, paint);
             canvas.drawText("rpy1" + rollPitchYaw[3].stringify(), 20, 40, paint);
             canvas.drawText("xyz0" + vector[1].stringify(), 20, 60, paint);
             canvas.drawText("xyz1" + vector[3].stringify(), 20, 80, paint);
+            */
             super.onDraw(canvas);
             //绘制火柴人
             float centerX = screenWidth / 2;
@@ -190,41 +217,41 @@ public class MainActivity extends Activity {
             //头部
             canvas.drawCircle(centerX, centerY - 30, 30, paint);
             //躯干
-            canvas.drawLine(centerX, centerY, centerX + (float) vector[0].x * singleLength * 2, centerY - (float) vector[0].z * singleLength * 2, paint);
+            canvas.drawLine(centerX, centerY, centerX + (float) nowVector[0].x * singleLength * 2, centerY - (float) nowVector[0].z * singleLength * 2, paint);
             //大臂
-            float tmpX1 = centerX + (float)vector[1].x * singleLength;
-            float tmpX2 = centerX + (float)vector[2].x * singleLength;
-            float tmpY1 = centerY - (float)vector[1].z * singleLength;
-            float tmpY2 = centerY - (float)vector[2].z * singleLength;
+            float tmpX1 = centerX + (float)nowVector[1].x * singleLength;
+            float tmpX2 = centerX + (float)nowVector[2].x * singleLength;
+            float tmpY1 = centerY - (float)nowVector[1].z * singleLength;
+            float tmpY2 = centerY - (float)nowVector[2].z * singleLength;
             canvas.drawLine(centerX, centerY, tmpX1, tmpY1, paint);
             canvas.drawLine(centerX, centerY, tmpX2, tmpY2, paint);
             //小臂
-            canvas.drawLine(tmpX1, tmpY1, tmpX1 + (float)vector[3].x * singleLength, tmpY1 - (float)vector[3].z * singleLength, paint);
-            canvas.drawLine(tmpX2, tmpY2, tmpX2 + (float)vector[4].x * singleLength, tmpY2 - (float)vector[4].z * singleLength, paint);
+            canvas.drawLine(tmpX1, tmpY1, tmpX1 + (float)nowVector[3].x * singleLength, tmpY1 - (float)nowVector[3].z * singleLength, paint);
+            canvas.drawLine(tmpX2, tmpY2, tmpX2 + (float)nowVector[4].x * singleLength, tmpY2 - (float)nowVector[4].z * singleLength, paint);
         }
     }
 
     //For init
     private void initData() {
         //躯干
-        vector[0].x = 0;
-        vector[0].y = 0;
-        vector[0].z = -1;
+        nowVector[0].x = vector[0].x = 0;
+        nowVector[0].y = vector[0].y = 0;
+        nowVector[0].z = vector[0].z = -1;
         //左大臂
-        vector[1].x = 1;
-        vector[1].y = 0;
-        vector[1].z = 0;
+        nowVector[1].x = vector[1].x = 1;
+        nowVector[1].y = vector[1].y = 0;
+        nowVector[1].z = vector[1].z = 0;
         //右大臂
-        vector[2].x = -1;
-        vector[2].y = 0;
-        vector[2].z = 0;
+        nowVector[2].x = vector[2].x = -1;
+        nowVector[2].y = vector[2].y = 0;
+        nowVector[2].z = vector[2].z = 0;
         //左小臂
-        vector[3].x = 0;
-        vector[3].y = 0;
-        vector[3].z = -1;
+        nowVector[3].x = vector[3].x = 0;
+        nowVector[3].y = vector[3].y = 0;
+        nowVector[3].z = vector[3].z = -1;
         //右小臂
-        vector[4].x = 0;
-        vector[4].y = 0;
-        vector[4].z = 1;
+        nowVector[3].x = vector[4].x = 0;
+        nowVector[3].y = vector[4].y = 0;
+        nowVector[3].z = vector[4].z = 1;
     }
 }

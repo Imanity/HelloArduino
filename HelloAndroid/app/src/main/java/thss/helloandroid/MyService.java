@@ -58,7 +58,7 @@ public class MyService extends Service {
             while( threadFlag ) {
                 readSerial();
                 try{
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
