@@ -28,7 +28,7 @@ Sensor sensors[cntSensors];
 unsigned long lastDisplay;
 String strBuffer;
 
-#define mySS 9
+int mySS[2] = {9, 10};
 
 // SPI Transfer.
 byte SPItransfer(byte value) {
@@ -49,8 +49,10 @@ void setup() {
   // Initialize SPI.
   SPI.begin();
   pinMode(MISO, INPUT);
-  pinMode(mySS, OUTPUT);
-  digitalWrite(mySS, HIGH);
+  pinMode(mySS[0], OUTPUT);
+  pinMode(mySS[1], OUTPUT);
+  digitalWrite(mySS[0], HIGH);
+  digitalWrite(mySS[1], HIGH);
 }
 
 // The loop() function runs continuously after setup().
@@ -58,23 +60,29 @@ void loop() {
   byte ch;
   int currentTime = 0;
   String str = "";
-  while(currentTime != 6) {
-    digitalWrite(mySS, LOW);
-    ch = SPItransfer(255);
-    if (ch != 255) {
-      str += char(ch);
-    }
-    // Disable slave.
-    digitalWrite(mySS, HIGH);
-    // Refresh currentTime
-    if (char(ch) == '>') {
-      currentTime++;
+  for(int i = 0; i < 2; ++i) {
+    currentTime = 0;
+    while(currentTime != 6) {
+      digitalWrite(mySS[i], LOW);
+      ch = SPItransfer(255);
+      if (ch != 255) {
+        str += char(ch);
+      }
+      // Disable slave.
+      digitalWrite(mySS[i], HIGH);
+      // Refresh currentTime
+      if (char(ch) == '>') {
+        currentTime++;
+      }
     }
   }
-  currentTime = 0;
-  //Char before u
+  //Char before u and o
   int pos = str.indexOf('u');
-  if (pos && str[pos - 1] != '<') {
+  if (pos >= 0 && str[pos - 1] != '<') {
+    str = str.substring(0, pos) + "<" + str.substring(pos, str.length());
+  }
+  pos = str.indexOf('o');
+  if (pos >= 0 && str[pos - 1] != '<') {
     str = str.substring(0, pos) + "<" + str.substring(pos, str.length());
   }
   Serial.print(str);

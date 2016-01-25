@@ -54,13 +54,15 @@ void loop() {
   for(int i=0; i<cntSensors; i++){
     sensors[i].refresh();
   }
-  for(int j = 0; j < cntSensors; j++) {
-    String line = sensors[j].getString();
-    int len = line.length();
-    for(int i = 0; i < len; ++i) {
-      SPI.transfer(line.charAt(i));
+  if (!digitalRead(SS)) {
+    for(int j = 0; j < cntSensors; j++) {
+      String line = sensors[j].getString();
+      int len = line.length();
+      for(int i = 0; i < len; ++i) {
+        SPI.transfer(line.charAt(i));
+      }
+      //Serial.println(line);
     }
-    //Serial.println(line);
-    }
+  }
 }
 
