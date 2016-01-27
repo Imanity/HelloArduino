@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,13 +14,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+import com.unity3d.player.UnityPlayer;
+import com.unity3d.player.UnityPlayerActivity;
+
+public class MainActivity extends UnityPlayerActivity {
     private Vector3D[] rollPitchYaw;
     private Vector3D[] vector;
     private Vector3D[] nowVector;
     private int screenWidth = 0, screenHeight = 0;
 
-    private MyView view;
+    //private MyView view;
 
     private boolean threadFlag = false;
     private MyThread mThread = null;
@@ -32,9 +34,9 @@ public class MainActivity extends Activity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        view = new MyView(this);
+        /*view = new MyView(this);
         view.setBackgroundColor(Color.WHITE);
-        setContentView(view);
+        setContentView(view);*/
 
         //成员变量初始化
         vector = new Vector3D[5];
@@ -70,6 +72,15 @@ public class MainActivity extends Activity {
         mThread.start();
     }
 
+    //向unity输出
+    public String message() {
+        String str = "";
+        for (int i = 0; i < 5; ++i) {
+            str += nowVector[i].x + "," + nowVector[i].y + "," + nowVector[i].z + ",";
+        }
+        return str;
+    }
+
     //多线程刷新视图
     public class MyThread extends Thread {
         @Override
@@ -81,7 +92,7 @@ public class MainActivity extends Activity {
                     nowVector[i].y += (vector[i].y - nowVector[i].y) / 4;
                     nowVector[i].z += (vector[i].z - nowVector[i].z) / 4;
                 }
-                view.postInvalidate();
+                //view.postInvalidate();
                 try{
                     Thread.sleep(20);
                 }catch(Exception e){
