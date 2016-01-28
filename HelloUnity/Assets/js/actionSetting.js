@@ -24,7 +24,7 @@ var last_Z = new float[4];
 
 //肢体方向数据
 var vectorArray = new float[12];
-var D = 3;
+var D : int;
 
 //Android通信相关
 var jc : AndroidJavaClass;
@@ -32,6 +32,7 @@ var jo : AndroidJavaObject;
 var stringToEdit : String;
 
 function Start () {
+	D = 3;
 	last_X[id] = X_Offset;
 	last_Y[id] = Y_Offset;
 	last_Z[id] = Z_Offset;
@@ -53,6 +54,9 @@ function refreshDirection () {
 	var now_X : float = vectorArray[id * D];
 	var now_Y : float = vectorArray[id * D + 1];
 	var now_Z : float = vectorArray[id * D + 2];
+	if (now_X == 0 && now_Y == 0 && now_Z == 0) {
+		return;
+	};
 	if (Mathf.Abs(now_X - last_X[id]) < 1e-3 && Mathf.Abs(now_Y - last_Y[id]) < 1e-3 && Mathf.Abs(now_Z - last_Z[id]) < 1e-3) {
 		return;
 	};

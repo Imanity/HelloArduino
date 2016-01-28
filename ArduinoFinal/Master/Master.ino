@@ -66,7 +66,7 @@ void loop() {
       }
     }
   }
-  //Serial.print(str);
+  Serial.print(str);
   // Get sensor data
   for (int i = 0; i < cntSensors; i++) {
     sensors[i].refresh();

@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.unity3d.player.UnityPlayerActivity;
@@ -28,9 +26,6 @@ public class MainActivity extends UnityPlayerActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*view = new MyView(this);
-        view.setBackgroundColor(Color.WHITE);
-        setContentView(view);*/
 
         //成员变量初始化
         vector = new Vector3D[4];
@@ -45,10 +40,6 @@ public class MainActivity extends UnityPlayerActivity {
         for (int i = 0; i < 4; ++i) {
             rollPitchYaw[i] = new Vector3D(0, 0, 0);
         }
-
-        //获取屏幕分辨率
-        WindowManager windowManager = getWindowManager();
-        Display display = windowManager.getDefaultDisplay();
 
         //接收广播
         Intent i = new Intent(MainActivity.this, MyService.class);
@@ -81,6 +72,12 @@ public class MainActivity extends UnityPlayerActivity {
                     nowVector[i].x += (vector[i].x - nowVector[i].x) / 4;
                     nowVector[i].y += (vector[i].y - nowVector[i].y) / 4;
                     nowVector[i].z += (vector[i].z - nowVector[i].z) / 4;
+                    double length = Math.sqrt(nowVector[i].x * nowVector[i].x + nowVector[i].y * nowVector[i].y + nowVector[i].z * nowVector[i].z);
+                    if (length != 0) {
+                        nowVector[i].x = nowVector[i].x / length;
+                        nowVector[i].y = nowVector[i].y / length;
+                        nowVector[i].z = nowVector[i].z / length;
+                    }
                 }
                 //view.postInvalidate();
                 try{

@@ -63,6 +63,7 @@ void loop() {
       }
       for (int i = 0; i < len; ++i) {
         SPI.transfer(line.charAt(i));
+        Serial.print(line.charAt(i));
       }
     }
   }
