@@ -1,17 +1,43 @@
-## SRT计划
+## SRT现状
+
+### 仓库说明
+
+- Hardware 文件夹下为面包板电路图
+- HelloAndroid 文件夹下为Android工程
+ - 编译方式：在Android studio自带console中运行:
+ ``` bash
+ gradlew makeJar
+ ```
+ 生成的jar库文件在app/build/libs/目录下
+ - 注意:若console无法输入,请在win10自带cmd中使用选项:使用旧版控制台并重启电脑
+ - 第一次编译需要翻墙下载,需在Android studio中设置代理
+- ArduinoFinal 文件夹下为Arduino工程
+ - master.ino 为连接蓝牙的Arduino nano所用
+ - slave.ino 为另一Arduino nano所用
+- HelloUnity 文件夹下为Unity工程
+ - 据说Unity版本不同直接clone可能无法正常打开
+ - 暂无解决方案(可以先试试,如果版本不同场景中可能什么都没有)
+- exec 文件夹中为生成的apk,可导入安卓调试
+- datasheets 文件夹中为Arduino所用芯片使用文档
+- libraries 文件夹中为Arduino工程编译所需库
+
+其余文件为测试文件,非项目必需
 
 ### 进度
 
-已完成：在unity中显示一个人,并生成相应apk
+已完成：在unity中显示一个人,四肢可动
 
-下一步：由于一些奇怪的原因,只有四肢能动,所以打算删掉躯干(id:0)的传感器
+下一步：没什么了,如果有人有兴趣可以研究下动作跟不上的原因(而且正确性也有待测试)
+
+### 问题
+- Arduino端: 真机测试感觉数据失真严重,且延迟较大,可能为磁场相互干扰所致,待demo用具准备完毕相互距离增大后需检验结果正确性
+- Android端: 蓝牙掉线重连功能尚未实现(optional)
+- Unity端: 人物胳膊在某些情况下严重扭曲(弃疗,不太可能修复)
 
 ### 时间表
 
-- 1-29 完成Android端改动,可能不用改(唐人杰,李肇阳)
-- 1-29 完成Arduino端改动及新电路设计(唐人杰,李肇阳)
-
-注：Android端可能无法调试,理论上不用怎么改,改改数组下标就行
+- 2-4 在淘宝找到demo用具(衣服、长导线之类的)(李肇阳)
+- 2-9 制作demo用具(李肇阳、唐人杰)
 
 ### 经费使用情况
 
