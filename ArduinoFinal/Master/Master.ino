@@ -1,8 +1,8 @@
 //By 唐人杰 on 2016.1.23
-//Used on Arduino Uno
-/* Function:
- *  Get a group of sensor data
- *  Communicate with two Arduino nano
+//Used on Master
+/* function:
+ *  Get two groups of sensor data
+ *  Master of two arduino nano
  *  Send the data with bluetooth
  */
 
@@ -19,22 +19,20 @@
 #include <EEPROM.h>
 #include "Sensor.h"
 
-#define cntSensors 1 // no more than 2
+#define cntSensors 2 // no more than 2
 Sensor sensors[cntSensors];
 
 #define DISPLAY_INTERVAL 50      // interval between pose displays
 #define SERIAL_PORT_SPEED 9600
-
 unsigned long lastDisplay;
-String strBuffer;
 
-int mySS[2] = {9, 10};
+//传感器ID偏移
+#define Offset_ID 1
 
 // SPI Transfer.
 byte SPItransfer(byte value) {
   SPDR = value;
   while(!(SPSR & (1<<SPIF)));
-  delay(1);
   return SPDR;
 }
 
@@ -42,63 +40,39 @@ byte SPItransfer(byte value) {
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   Wire.begin();
-  for(int i=0; i<cntSensors; i++)
-    sensors[i].init(i);
+  for(int i = 0; i < cntSensors; i++)
+    sensors[i].init(i + 2 * Offset_ID);
   lastDisplay = millis();
   Serial.println("ending setup");
-  // Initialize SPI.
-  SPI.begin();
+  SPI.begin ();
   pinMode(MISO, INPUT);
-  pinMode(mySS[0], OUTPUT);
-  pinMode(mySS[1], OUTPUT);
-  digitalWrite(mySS[0], HIGH);
-  digitalWrite(mySS[1], HIGH);
+  pinMode(SS, OUTPUT);
+  digitalWrite(SS, HIGH);
 }
 
-// The loop() function runs continuously after setup().
+// The loop function runs continuously after setup().
 void loop() {
-  byte ch;
   int currentTime = 0;
   String str = "";
-  for(int i = 0; i < 2; ++i) {
-    currentTime = 0;
-    while(currentTime != 6) {
-      digitalWrite(mySS[i], LOW);
-      ch = SPItransfer(255);
-      if (ch != 255) {
-        str += char(ch);
-      }
-      // Disable slave.
-      digitalWrite(mySS[i], HIGH);
-      // Refresh currentTime
+  byte ch;
+  while(currentTime != 6) {
+    digitalWrite(SS, LOW);
+    ch = SPItransfer(255);
+    digitalWrite(SS, HIGH);
+    if (ch != 255) {
+      str += char(ch);
       if (char(ch) == '>') {
         currentTime++;
       }
     }
   }
-  //Char before u and o
-  int pos = str.indexOf('u');
-  if (pos >= 0 && str[pos - 1] != '<') {
-    str = str.substring(0, pos) + "<" + str.substring(pos, str.length());
-  }
-  pos = str.indexOf('o');
-  if (pos >= 0 && str[pos - 1] != '<') {
-    str = str.substring(0, pos) + "<" + str.substring(pos, str.length());
-  }
-  Serial.print(str);
-  str = "";
-  
-  // Send sensor data
-  unsigned long now = millis();
-  bool itIsTimeToSendData = (now - lastDisplay) >= DISPLAY_INTERVAL;
-  for(int i=0; i<cntSensors; i++){
+  //Serial.print(str);
+  // Get sensor data
+  for (int i = 0; i < cntSensors; i++) {
     sensors[i].refresh();
   }
-  if(itIsTimeToSendData){
-    lastDisplay = now;
-    for(int j=0; j<cntSensors; j++) {
-       sensors[j].sendToSerial();
-    }
+  for (int i = 0; i < cntSensors; i++) {
+    sensors[i].sendToSerial();
   }
 }
 

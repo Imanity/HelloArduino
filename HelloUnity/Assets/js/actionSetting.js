@@ -18,12 +18,12 @@ var Y_Offset : float;
 var Z_Offset : float;
 
 //上一状态单位向量
-var last_X = new float[5];
-var last_Y = new float[5];
-var last_Z = new float[5];
+var last_X = new float[4];
+var last_Y = new float[4];
+var last_Z = new float[4];
 
 //肢体方向数据
-var vectorArray = new float[15];
+var vectorArray = new float[12];
 var D = 3;
 
 //Android通信相关
@@ -35,7 +35,7 @@ function Start () {
 	last_X[id] = X_Offset;
 	last_Y[id] = Y_Offset;
 	last_Z[id] = Z_Offset;
-	stringToEdit = "0,0,1,0.707,-0.707,0,0.707,-0.707,0,-0.707,-0.707,0,-0.707,-0.707,0,";
+	stringToEdit = "0.707,-0.707,0,0.707,-0.707,0,-0.707,-0.707,0,-0.707,-0.707,0,";
 	translateMessage();
 	refreshDirection();
 }
@@ -86,7 +86,4 @@ function translateMessage () {
 	vectorArray[9] = float.Parse(strArray[9]);
 	vectorArray[10] = float.Parse(strArray[10]);
 	vectorArray[11] = float.Parse(strArray[11]);
-	vectorArray[12] = float.Parse(strArray[12]);
-	vectorArray[13] = float.Parse(strArray[13]);
-	vectorArray[14] = float.Parse(strArray[14]);
 }

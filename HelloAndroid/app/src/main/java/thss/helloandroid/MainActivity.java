@@ -1,27 +1,21 @@
 package thss.helloandroid;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.unity3d.player.UnityPlayer;
 import com.unity3d.player.UnityPlayerActivity;
 
 public class MainActivity extends UnityPlayerActivity {
     private Vector3D[] rollPitchYaw;
     private Vector3D[] vector;
     private Vector3D[] nowVector;
-    private int screenWidth = 0, screenHeight = 0;
 
     //private MyView view;
 
@@ -39,26 +33,22 @@ public class MainActivity extends UnityPlayerActivity {
         setContentView(view);*/
 
         //成员变量初始化
-        vector = new Vector3D[5];
-        nowVector = new Vector3D[5];
-        rollPitchYaw = new Vector3D[5];
-        for (int i = 0; i < 5; ++i) {
+        vector = new Vector3D[4];
+        nowVector = new Vector3D[4];
+        rollPitchYaw = new Vector3D[4];
+        for (int i = 0; i < 4; ++i) {
             vector[i] = new Vector3D(0, 0, 0);
         }
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 4; ++i) {
             nowVector[i] = new Vector3D(0, 0, 0);
         }
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 4; ++i) {
             rollPitchYaw[i] = new Vector3D(0, 0, 0);
         }
-
-        initData();
 
         //获取屏幕分辨率
         WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
-        screenWidth = display.getWidth();
-        screenHeight = display.getHeight();
 
         //接收广播
         Intent i = new Intent(MainActivity.this, MyService.class);
@@ -75,7 +65,7 @@ public class MainActivity extends UnityPlayerActivity {
     //向unity输出
     public String message() {
         String str = "";
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 4; ++i) {
             str += nowVector[i].x + "," + nowVector[i].y + "," + nowVector[i].z + ",";
         }
         return str;
@@ -87,7 +77,7 @@ public class MainActivity extends UnityPlayerActivity {
         public void run() {
             super.run();
             while( threadFlag ) {
-                for (int i = 0; i < 5; ++i) {
+                for (int i = 0; i < 4; ++i) {
                     nowVector[i].x += (vector[i].x - nowVector[i].x) / 4;
                     nowVector[i].y += (vector[i].y - nowVector[i].y) / 4;
                     nowVector[i].z += (vector[i].z - nowVector[i].z) / 4;
@@ -112,11 +102,6 @@ public class MainActivity extends UnityPlayerActivity {
             Bundle myBundle = intent.getExtras();
             String info = myBundle.getString("str");
             Log.v(LOG_TAG, info);
-
-            /*if(parseChunk(info) > 0) {
-                //更新视图
-                view.postInvalidate();
-            }*/
             parseChunk(info);
         }
 
@@ -184,7 +169,7 @@ public class MainActivity extends UnityPlayerActivity {
                     default: return 0;
                 }
 
-                for(int j = 0; j < 5; j++)
+                for(int j = 0; j < 4; j++)
                     vector[j] = Translator.rpy_to_xyz(rollPitchYaw[j]);
                 return 1;
             }
@@ -200,69 +185,5 @@ public class MainActivity extends UnityPlayerActivity {
             Log.v("bluetooth toast", info);
             showToast(info);
         }
-    }
-
-
-    //绘图类
-    class MyView extends View {
-        Paint paint = null;
-        public MyView(Context context) {
-            super(context);
-            paint = new Paint();
-        }
-        public void onDraw(Canvas canvas) {
-            //输出文字信息
-            paint.setTextSize(25);
-            paint.setStrokeWidth(3);
-            /*
-            canvas.drawText("rpy0" + rollPitchYaw[1].stringify(), 20, 20, paint);
-            canvas.drawText("rpy1" + rollPitchYaw[3].stringify(), 20, 40, paint);
-            canvas.drawText("xyz0" + vector[1].stringify(), 20, 60, paint);
-            canvas.drawText("xyz1" + vector[3].stringify(), 20, 80, paint);
-            */
-            super.onDraw(canvas);
-            //绘制火柴人
-            float centerX = screenWidth / 2;
-            float centerY = screenHeight / 2;
-            float singleLength = screenWidth / 5;
-            //头部
-            canvas.drawCircle(centerX, centerY - 30, 30, paint);
-            //躯干
-            canvas.drawLine(centerX, centerY, centerX + (float) nowVector[0].x * singleLength * 2, centerY - (float) nowVector[0].z * singleLength * 2, paint);
-            //大臂
-            float tmpX1 = centerX + (float)nowVector[1].x * singleLength;
-            float tmpX2 = centerX + (float)nowVector[2].x * singleLength;
-            float tmpY1 = centerY - (float)nowVector[1].z * singleLength;
-            float tmpY2 = centerY - (float)nowVector[2].z * singleLength;
-            canvas.drawLine(centerX, centerY, tmpX1, tmpY1, paint);
-            canvas.drawLine(centerX, centerY, tmpX2, tmpY2, paint);
-            //小臂
-            canvas.drawLine(tmpX1, tmpY1, tmpX1 + (float)nowVector[3].x * singleLength, tmpY1 - (float)nowVector[3].z * singleLength, paint);
-            canvas.drawLine(tmpX2, tmpY2, tmpX2 + (float)nowVector[4].x * singleLength, tmpY2 - (float)nowVector[4].z * singleLength, paint);
-        }
-    }
-
-    //For init
-    private void initData() {
-        //躯干
-        nowVector[0].x = vector[0].x = 0;
-        nowVector[0].y = vector[0].y = 0;
-        nowVector[0].z = vector[0].z = -1;
-        //左大臂
-        nowVector[1].x = vector[1].x = 1;
-        nowVector[1].y = vector[1].y = 0;
-        nowVector[1].z = vector[1].z = 0;
-        //右大臂
-        nowVector[2].x = vector[2].x = -1;
-        nowVector[2].y = vector[2].y = 0;
-        nowVector[2].z = vector[2].z = 0;
-        //左小臂
-        nowVector[3].x = vector[3].x = 0;
-        nowVector[3].y = vector[3].y = 0;
-        nowVector[3].z = vector[3].z = -1;
-        //右小臂
-        nowVector[3].x = vector[4].x = 0;
-        nowVector[3].y = vector[4].y = 0;
-        nowVector[3].z = vector[4].z = 1;
     }
 }
