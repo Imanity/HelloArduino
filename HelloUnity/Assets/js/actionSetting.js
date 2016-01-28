@@ -68,7 +68,20 @@ function refreshDirection () {
 	axis_Y = axis_Y / length;
 	axis_Z = axis_Z / length;
 	transform.Rotate(new Vector3(axis_X, axis_Y, axis_Z), 180, Space.World);
-	transform.Rotate(new Vector3(now_X, now_Y, now_Z), 180, Space.World);
+	transform.Rotate(new Vector3(now_X, now_Y, now_Z), -180, Space.World);
+	var child : GameObject;
+	if (id == 0 || id == 2) {
+		if (id == 0) {
+			child = GameObject.Find("左腕捩");
+		} else {
+			child = GameObject.Find("右腕捩");
+		};
+		child.transform.Rotate(new Vector3(axis_X, axis_Y, axis_Z), 180, Space.World);
+		var angle = 0.0;
+		var axis = Vector3.zero;
+		child.transform.rotation.ToAngleAxis(angle, axis);
+		child.transform.Rotate(axis, -180, Space.World);
+	};
 	last_X[id] = now_X;
 	last_Y[id] = now_Y;
 	last_Z[id] = now_Z;
