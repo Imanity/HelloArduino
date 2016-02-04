@@ -5,6 +5,10 @@
  *  Master of two arduino nano
  *  Send the data with bluetooth
  */
+/*
+   Modified by Zhaoyang, Feb. 2016
+   use serial communication between boards
+ */
 
 //uncomment this to get detailed status report on Serial
 #define VERBOSE
@@ -24,17 +28,14 @@ Sensor sensors[cntSensors];
 
 #define DISPLAY_INTERVAL 50      // interval between pose displays
 #define SERIAL_PORT_SPEED 9600
+
 unsigned long lastDisplay;
 
 //传感器ID偏移
 #define Offset_ID 1
 
-// SPI Transfer.
-byte SPItransfer(byte value) {
-  SPDR = value;
-  while(!(SPSR & (1<<SPIF)));
-  return SPDR;
-}
+
+String buffer;
 
 // The setup() function runs after reset.
 void setup() {
@@ -44,36 +45,32 @@ void setup() {
     sensors[i].init(i + 2 * Offset_ID);
   lastDisplay = millis();
   Serial.println("ending setup");
-  SPI.begin ();
-  SPI.setClockDivider(SPI_CLOCK_DIV128);
-  pinMode(MISO, INPUT);
-  pinMode(SS, OUTPUT);
-  digitalWrite(SS, HIGH);
 }
 
 // The loop function runs continuously after setup().
 void loop() {
-  int currentTime = 0;
-  String str = "";
-  byte ch;
-  while(currentTime != 6) {
-    digitalWrite(SS, LOW);
-    ch = SPItransfer(255);
-    digitalWrite(SS, HIGH);
-    if (ch != 255) {
-      str += char(ch);
-      if (char(ch) == '>') {
-        currentTime++;
-      }
+  int cntData = 0;
+  while(Serial.available()){
+    cntData++;
+    String str;
+    str = Serial.readStringUntil('>') + '>';
+    if(str[0]=='<')
+      Serial.print(str);
+    if(cntData >= 6) {
+      Serial.flush();
+      break;
     }
   }
-  Serial.print(str);
+  
   // Get sensor data
   for (int i = 0; i < cntSensors; i++) {
     sensors[i].refresh();
   }
-  for (int i = 0; i < cntSensors; i++) {
-    sensors[i].sendToSerial();
+  if(millis() - lastDisplay >= DISPLAY_INTERVAL) {
+    lastDisplay = millis();
+    for (int i = 0; i < cntSensors; i++) {
+      sensors[i].sendToSerial();
+      Serial.println();
+    }
   }
 }
-
