@@ -54,7 +54,7 @@ void loop() {
   for (int i = 0; i < cntSensors; i++) {
     sensors[i].refresh();
   }
-  if (!digitalRead(SS)) {
+  //if (!digitalRead(SS)) {
     for (int j = 0; j < cntSensors; j++) {
       String line = sensors[j].getString();
       int len = line.length();
@@ -66,6 +66,6 @@ void loop() {
         Serial.print(line.charAt(i));
       }
     }
-  }
+  //}
 }
 

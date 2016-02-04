@@ -45,6 +45,7 @@ void setup() {
   lastDisplay = millis();
   Serial.println("ending setup");
   SPI.begin ();
+  SPI.setClockDivider(SPI_CLOCK_DIV128);
   pinMode(MISO, INPUT);
   pinMode(SS, OUTPUT);
   digitalWrite(SS, HIGH);
