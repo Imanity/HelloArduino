@@ -15,8 +15,8 @@
  - master.ino 为连接蓝牙的Arduino nano所用
  - slave.ino 为另一Arduino nano所用
 - HelloUnity 文件夹下为Unity工程
- - 据说Unity版本不同直接clone可能无法正常打开
- - 暂无解决方案(可以先试试,如果版本不同场景中可能什么都没有)
+ - Unity版本不同直接clone可能无法正常打开
+ - 暂无解决方案
 - exec 文件夹中为生成的apk,可导入安卓调试
 - datasheets 文件夹中为Arduino所用芯片使用文档
 - libraries 文件夹中为Arduino工程编译所需库
@@ -38,8 +38,9 @@
 
 ### 时间表
 
-- 大过年的，快递都歇了，难以淘宝；考虑到我中厅还有大量导线，
-- 建议年后、返校后再制作 demo 服装
+- 2-19 制作demo用具并进行测试
+- 2-21 修复bug或调整算法
+- 2-22 开始准备合并工作
 
 ### 经费使用情况
 
