@@ -49,26 +49,13 @@ void setup() {
 
 // The loop function runs continuously after setup().
 void loop() {
-  int cntData = 0;
+
+  //Get slave data
+  int cnt = 0;
   while(Serial.available()){
-    cntData++;
-    String str;
-    
-    bool flag = 1;
-    while(flag){
-      char chr = Serial.read();
-      if(chr == -1)
-        continue;
-      str += chr;
-      if(chr == '>')
-        break;
-    }
-    if(str[0]=='<')
-      Serial.print(str);
-    if(cntData >= 6) {
-      //Serial.flush();
-      break;
-    }
+    parseSerialData(Serial.read());
+    cnt ++;
+    if(cnt > 12) break;
   }
   
   // Get sensor data
@@ -78,7 +65,7 @@ void loop() {
   if(millis() - lastDisplay >= DISPLAY_INTERVAL) {
     lastDisplay = millis();
     for (int i = 0; i < cntSensors; i++) {
-      sensors[i].sendToSerial();
+      Serial.print(sensors[i].getString());
     }
     //Serial.println();
   }
@@ -92,15 +79,9 @@ char getName(char chr){
 }
 
 
-typedef struct{
-  bool isAssigned;
-  char name_;
-  char value;
-} Decompressed;
 
-Decompressed parseSerialData(char chr){
-  Decompressed c;
-  c.isAssigned = false;
+void parseSerialData(char chr){
+  
   
   static char lower = 0;
   static bool lowerAssigned = false;
@@ -115,26 +96,29 @@ Decompressed parseSerialData(char chr){
   // 0 ? 0 0 0 0 0 0
   if((chr & (1<<6))){
     if(!lowerAssigned){
-      return c;
+      return ;
     }
     // 6th bit non-zero
     // higher
     // 0 1 x x x x x x 
     char higher = chr & 7; // 00000111 as mask
-    char id = chr & 56;    // 00111000 as mask
+    char id = (chr & 56) >> 3;    // 00111000 as mask
     char value = higher * 64 + lower;
     char name_ = getName(id);
-    //c = {true, name_, value};
-    c.isAssigned  = true;
-    c.name_ = name_;
-    c.value = value;
-    return c;
+    lowerAssigned = false;
+    if(id<0 || id>5){
+      //Serial.println(chr, BIN);
+      return;
+    }
+    Serial.print("<" + String(name_) + ":" + String((int)value) + ">");
+    //if(name_ == 'z') Serial.println();
+    return ;
   }else{
     //6th bit zero
     // lower
     lower = chr;
     lowerAssigned = true;
-    return c;
+    return ;
   }
 }
 
