@@ -2,7 +2,7 @@
 
 ### 仓库说明
 
-- Hardware 文件夹下为面包板电路图
+
 - HelloAndroid 文件夹下为Android工程
  - 编译方式：在Android studio自带console中运行:
  ``` bash
@@ -12,22 +12,23 @@
  - 注意:若console无法输入,请在win10自带cmd中使用选项:使用旧版控制台并重启电脑
  - 第一次编译需要翻墙下载,需在Android studio中设置代理
 - ArduinoFinal 文件夹下为Arduino工程
- - master.ino 为连接蓝牙的Arduino nano所用
- - slave.ino 为另一Arduino nano所用
+ - MMaster 为连接蓝牙的Arduino nano所用
+ - Slave 为另一Arduino nano所用
+ - _Master 现已不用_
 - HelloUnity 文件夹下为Unity工程
  - Unity版本不同直接clone可能无法正常打开
  - 暂无解决方案
+- _Hardware 文件夹下为面包板上电路图，为SPI方案，现已不用_
 - exec 文件夹中为生成的apk,可导入安卓调试
 - datasheets 文件夹中为Arduino所用芯片使用文档
 - libraries 文件夹中为Arduino工程编译所需库
 
-其余文件为测试文件,非项目必需
+_其余文件为测试文件,非项目必需_
+- HHelloAndroid 文件夹下为Android工程，肢解的火柴人
 
 ### 进度
 
-已完成：在unity中显示一个人,四肢可动
-
-正在进行：修改 Arduino 端的逻辑，可能要改写成多线程(李肇阳)
+已完成：在unity中显示一个人,上肢可动
 
 下一步：制作 demo 用具，形态可能是一件外套
 
