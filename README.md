@@ -12,9 +12,8 @@
  - 注意:若console无法输入,请在win10自带cmd中使用选项:使用旧版控制台并重启电脑
  - 第一次编译需要翻墙下载,需在Android studio中设置代理
 - ArduinoFinal 文件夹下为Arduino工程
- - MMaster 为连接蓝牙的Arduino nano所用
+ - Master 为连接蓝牙的Arduino nano所用
  - Slave 为另一Arduino nano所用
- - _Master 现已不用_
 - HelloUnity 文件夹下为Unity工程
  - Unity版本不同直接clone可能无法正常打开
  - 暂无解决方案

@@ -66,23 +66,46 @@ public:
       line += "<";
       line += x;
       line += ":" ;
-      line += (vec.x() * RTMATH_RAD_TO_DEGREE);
+      line += (int)(vec.x() * RTMATH_RAD_TO_DEGREE);
       line += ">";
       line += "<";
       line += y;
       line += ":" ;
-      line += (vec.y() * RTMATH_RAD_TO_DEGREE);
+      line += (int)(vec.y() * RTMATH_RAD_TO_DEGREE);
       line += ">";
       line += "<";
       line += z;
       line += ":" ;
-      line += (vec.z() * RTMATH_RAD_TO_DEGREE);
+      line += (int)(vec.z() * RTMATH_RAD_TO_DEGREE);
       line += ">";
       return line;
     }
     
     void sendToSerial(){
-      Serial.print(getString());
+      RTVector3 vec = fusion.getFusionPose();
+    
+    /*
+      char x = 'x', y = x + 1, z = x + 2;
+      x -= ID * 3;
+      y -= ID * 3;
+      z -= ID * 3;
+    */
+    
+      int num[3];
+      num[0] =  (int)(vec.x() * RTMATH_RAD_TO_DEGREE) + 180;
+      num[1] =  (int)(vec.y() * RTMATH_RAD_TO_DEGREE) + 90;
+      num[2] =  (int)(vec.z() * RTMATH_RAD_TO_DEGREE) + 90;
+    
+      char ch[7];
+      ch[6]=0;
+      for (int i = 0; i < 3; i++) {
+        ch[2 * i + 1] = 64 + (3 * ID + i) * 8 + num[i] / 64;
+        ch[2 * i] = num[i] % 64;
+      }
+      //x, y, z: roll, pitch, yaw
+    
+      String line(ch);
+      Serial.print(line);
     }
 
 };
