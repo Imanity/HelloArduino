@@ -18,9 +18,9 @@ import java.util.UUID;
 public class MyService extends Service {
     private static final UUID HC_UUID   = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private BluetoothAdapter mBtAdapter = null;
-    private BluetoothSocket mBtSocket   = null;
+    private BluetoothSocket mBtSocket = null;
     private OutputStream outStream = null;
-    private InputStream inStream  = null;
+    private InputStream inStream = null;
     private boolean mBtFlag = true;
     private boolean threadFlag = false;
     private MyThread mThread = null;
@@ -33,17 +33,16 @@ public class MyService extends Service {
     private void myStartService() {
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         if ( mBtAdapter == null ) {
-            sendToast("Bluetooth unused.");
-            mBtFlag  = false;
+            sendToast("No Bluetooth device found on your device!");
+            mBtFlag = false;
             return;
         }
         if ( !mBtAdapter.isEnabled() ) {
-            mBtFlag  = false;
-            //myStopService();
-            sendToast("Open bluetooth then restart program!!");
-            return;
+            mBtFlag = false;
+            sendToast("Opening the bluetooth");
+            mBtAdapter.enable();
         }
-
+        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         sendToast("Start searching!!");
         threadFlag = true;
         mThread = new MyThread();
@@ -55,11 +54,17 @@ public class MyService extends Service {
         public void run() {
             super.run();
             myBtConnect();
-            while( threadFlag ) {
+            //while( threadFlag ) {
+            while(threadFlag) {
+                if (mBtSocket == null || !mBtSocket.isConnected()) { // Auto reconnect
+                    sendToast("Connection off, reconnecting");
+                    mBtFlag = true;
+                    myBtConnect();
+                }
                 readSerial();
-                try{
-                    Thread.sleep(50);
-                }catch(Exception e){
+                try {
+                    Thread.sleep(20);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -73,8 +78,7 @@ public class MyService extends Service {
         BluetoothDevice mBtDevice = null;
         Set<BluetoothDevice> mBtDevices = mBtAdapter.getBondedDevices();
         if ( mBtDevices.size() > 0 ) {
-            for ( Iterator<BluetoothDevice> iterator = mBtDevices.iterator();
-                  iterator.hasNext(); ) {
+            for ( Iterator<BluetoothDevice> iterator = mBtDevices.iterator(); iterator.hasNext(); ) {
                 mBtDevice = (BluetoothDevice)iterator.next();
                 sendToast(mBtDevice.getName() + "|" + mBtDevice.getAddress());
             }
@@ -86,6 +90,7 @@ public class MyService extends Service {
             e.printStackTrace();
             mBtFlag = false;
             sendToast("Create bluetooth socket error");
+            return;
         }
 
         mBtAdapter.cancelDiscovery();
@@ -98,12 +103,13 @@ public class MyService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
             try {
-                sendToast("Connect error, close");
+                sendToast("Connect error, Reconnecting");
                 mBtSocket.close();
                 mBtFlag = false;
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+            return;
         }
 
         /* I/O initialize */
@@ -113,6 +119,7 @@ public class MyService extends Service {
                 outStream = mBtSocket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();
+                return;
             }
         }
         sendToast("Bluetooth is ready!");
