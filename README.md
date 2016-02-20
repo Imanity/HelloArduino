@@ -17,7 +17,6 @@
 - HelloUnity 文件夹下为Unity工程
  - Unity版本不同直接clone可能无法正常打开
  - 暂无解决方案
-- _Hardware 文件夹下为面包板上电路图，为SPI方案，现已不用_
 - exec 文件夹中为生成的apk,可导入安卓调试
 - datasheets 文件夹中为Arduino所用芯片使用文档
 - libraries 文件夹中为Arduino工程编译所需库
