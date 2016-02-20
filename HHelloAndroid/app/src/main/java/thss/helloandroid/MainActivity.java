@@ -34,16 +34,16 @@ public class MainActivity extends Activity {
         setContentView(view);
 
         //成员变量初始化
-        vector = new Vector3D[5];
-        rollPitchYaw = new Vector3D[5];
-        for (int i = 0; i < 5; ++i) {
+        vector = new Vector3D[4];
+        rollPitchYaw = new Vector3D[4];
+        for (int i = 0; i < 4; ++i) {
             vector[i] = new Vector3D(0, 0, 0);
         }
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 4; ++i) {
             rollPitchYaw[i] = new Vector3D(0, 0, 0);
         }
 
-        testData(); //TODO: Delete it after test
+        //testData(); //TODO: Delete it after test
 
 
         //获取屏幕分辨率
@@ -68,8 +68,7 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Bundle myBundle = intent.getExtras();
             String info = myBundle.getString("str");
-            Log.v(LOG_TAG, "" + info.length());
-            Log.v(LOG_TAG, "BOSS" + info +"JIANG");
+            Log.v(LOG_TAG, "GET: " + info);
 
             if(parseChunk(info) > 0) {
                 //更新视图
@@ -78,10 +77,54 @@ public class MainActivity extends Activity {
 
         }
 
+        public int parseChunk(String chunk) {
+            char ch;
+            char lower = 0;
+            boolean lowerAssigned = false;
+            for (int i = 0; i < chunk.length(); ++i) {
+                ch = chunk.charAt(i);
+                if ((ch & (1 << 6)) != 0) { // 01000000 as mask
+                    if (!lowerAssigned)
+                        continue;
+                    char higher = (char)(ch & 3); // 00000011 as mask
+                    char id = (char)((ch & 60) >> 2); // 00111100 as mask
+                    int value = higher * 64 + lower;
+                    Log.v(LOG_TAG, "BIN: " + Integer.toBinaryString((int)ch));
+                    boolean isOutOfBound = false;
+                    switch (id % 3) {
+                        case 0:
+                            rollPitchYaw[id / 3].x = value * 1.5 - 180;
+                            break;
+                        case 1:
+                            rollPitchYaw[id / 3].y = value * 1.5 - 180;
+                            break;
+                        case 2:
+                            rollPitchYaw[id / 3].z = value * 1.5 - 180;
+                            break;
+                        default:
+                            isOutOfBound = true;
+                            break;
+                    }
+                    if (isOutOfBound) {
+                        Log.e(LOG_TAG, "Message Err: " + Integer.toBinaryString((int)ch));
+                        continue;
+                    }
+                    lowerAssigned = false;
+                } else {
+                    lower = ch;
+                    lowerAssigned = true;
+                }
+            }
+            for(int i = 0; i < 4; i++)
+                vector[i] = Translator.rpy_to_xyz(rollPitchYaw[i]);
+            return 1;
+        }
 
 
-        private String lastChunk = ""; //上一个数据块中最后一个 '>' 之后的部分
 
+        //private String lastChunk = ""; //上一个数据块中最后一个 '>' 之后的部分
+
+        /*
         //解析数据块 `><x:2.33><y:6.66><z:`，返回成功解析的数据个数
         public int parseChunk(String chunk){
 
@@ -124,12 +167,12 @@ public class MainActivity extends Activity {
                 char chr = key[0].charAt(0);
 
                 int i = ('z' - chr) / 3;
-                /*
-                x,y,z -> 0
-                u,v,w -> 1
-                r,s,t -> 2
-                ...
-                 */
+
+                //x,y,z -> 0
+                //u,v,w -> 1
+                //r,s,t -> 2
+                //...
+
 
                 i += 1; //仅供测试
 
@@ -148,6 +191,7 @@ public class MainActivity extends Activity {
             }
             return 0;
         }
+        */
     }
 
     private class BluetoothToastReceiver extends BroadcastReceiver {
@@ -172,10 +216,10 @@ public class MainActivity extends Activity {
             //输出文字信息
             paint.setTextSize(25);
             paint.setStrokeWidth(3);
-            canvas.drawText("rpy1" + rollPitchYaw[1].stringify(), 20, 20, paint);
-            canvas.drawText("rpy2" + rollPitchYaw[2].stringify(), 20, 40, paint);
-            canvas.drawText("rpy3" + rollPitchYaw[3].stringify(), 20, 60, paint);
-            canvas.drawText("rpy4" + rollPitchYaw[4].stringify(), 20, 80, paint);
+            canvas.drawText("rpy1" + rollPitchYaw[0].stringify(), 20, 20, paint);
+            canvas.drawText("rpy2" + rollPitchYaw[1].stringify(), 20, 40, paint);
+            canvas.drawText("rpy3" + rollPitchYaw[2].stringify(), 20, 60, paint);
+            canvas.drawText("rpy4" + rollPitchYaw[3].stringify(), 20, 80, paint);
             super.onDraw(canvas);
 
             //绘制火柴人
@@ -185,14 +229,14 @@ public class MainActivity extends Activity {
             float singleLength = screenWidth / 5;
 
 
-            canvas.drawLine(d, d, d + (float)vector[1].x * singleLength, d - (float)vector[1].z * singleLength, paint);
-            canvas.drawLine(d, e, d + (float)vector[2].x * singleLength, e - (float)vector[2].z * singleLength, paint);
-            canvas.drawLine(e, e, e + (float)vector[3].x * singleLength, e - (float)vector[3].z * singleLength, paint);
-            canvas.drawLine(e, d, e + (float)vector[4].x * singleLength, d - (float)vector[4].z * singleLength, paint);
+            canvas.drawLine(d, d, d + (float)vector[0].x * singleLength, d - (float)vector[0].z * singleLength, paint);
+            canvas.drawLine(d, e, d + (float)vector[1].x * singleLength, e - (float)vector[1].z * singleLength, paint);
+            canvas.drawLine(e, e, e + (float)vector[2].x * singleLength, e - (float)vector[2].z * singleLength, paint);
+            canvas.drawLine(e, d, e + (float)vector[3].x * singleLength, d - (float)vector[3].z * singleLength, paint);
         }
     }
 
-    //测试用,测试后删除
+    /*
     private void testData() {
         //躯干
         vector[0].x = 0;
@@ -215,4 +259,5 @@ public class MainActivity extends Activity {
         vector[4].y = 0;
         vector[4].z = 1;
     }
+    */
 }
