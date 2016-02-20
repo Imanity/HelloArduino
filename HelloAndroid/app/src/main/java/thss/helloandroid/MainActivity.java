@@ -101,77 +101,48 @@ public class MainActivity extends UnityPlayerActivity {
             Log.v(LOG_TAG, info);
             parseChunk(info);
         }
-
-        private String lastChunk = ""; //上一个数据块中最后一个 '>' 之后的部分
-
-        //解析数据块 `><x:2.33><y:6.66><z:`，返回成功解析的数据个数
-        public int parseChunk(String chunk){
-            try {
-                chunk = lastChunk + chunk;
-
-                int left = chunk.indexOf('<');
-                int right = chunk.lastIndexOf('>');
-
-                if (left == -1) {
-                    if(right == -1)
-                        lastChunk = "";
-                    else
-                        lastChunk = chunk.substring(right + 1);
-                    Log.w(LOG_TAG, chunk + " INVALID");
-
-                    return 0;
+        public int parseChunk(String chunk) {
+            char ch;
+            char lower = 0;
+            boolean lowerAssigned = false;
+            for (int i = 0; i < chunk.length(); ++i) {
+                ch = chunk.charAt(i);
+                if ((ch & (1 << 6)) != 0) { // 01000000 as mask
+                    if (!lowerAssigned)
+                        continue;
+                    char higher = (char)(ch & 3); // 00000011 as mask
+                    char id = (char)((ch & 60) >> 2); // 00111100 as mask
+                    int value = higher * 64 + lower;
+                    Log.v(LOG_TAG, "BIN: " + Integer.toBinaryString((int)ch));
+                    boolean isOutOfBound = false;
+                    switch (id % 3) {
+                        case 0:
+                            rollPitchYaw[id / 3].x = value * 1.5 - 180;
+                            break;
+                        case 1:
+                            rollPitchYaw[id / 3].y = value * 1.5 - 180;
+                            break;
+                        case 2:
+                            rollPitchYaw[id / 3].z = value * 1.5 - 180;
+                            break;
+                        default:
+                            isOutOfBound = true;
+                            break;
+                    }
+                    if (isOutOfBound) {
+                        Log.e(LOG_TAG, "Message Err: " + Integer.toBinaryString((int)ch));
+                        continue;
+                    }
+                    lowerAssigned = false;
                 } else {
-                    String numbers = chunk.substring(left, right + 1);
-                    lastChunk = chunk.substring(right + 1);
-                    return parseNumbers(numbers);
+                    lower = ch;
+                    lowerAssigned = true;
                 }
-            } catch (Exception e) {
-                Log.e(LOG_TAG, chunk + " EXCEPTION");
-                e.printStackTrace();
-                return 0;
             }
-        }
-
-        //解析多个数字 `<x:2.33><y:6.66>`
-        public int parseNumbers(String numbers){
-            String data[] = numbers.split("<");
-            int sum=0;
-            for (int i = 0; i < data.length; ++i) {
-                if (data[i].length() == 0)
-                    continue;
-                sum += parseNumber(data[i]);
-            }
-            return sum;
-        }
-
-        //解析单个数字 `x:2.33>`
-        public int parseNumber(String number){
-            number = number.substring(0, number.indexOf('>'));
-            String key[] = number.split(":");
-            if (key[0].length() == 1) {
-                char chr = key[0].charAt(0);
-
-                int i = ('z' - chr) / 3;
-                /*
-                x,y,z -> 0
-                u,v,w -> 1
-                r,s,t -> 2
-                ...
-                 */
-
-                switch (chr % 3) {
-                    case 0: rollPitchYaw[i].x = Double.valueOf(key[1]); break;
-                    case 1: rollPitchYaw[i].y = Double.valueOf(key[1]); break;
-                    case 2: rollPitchYaw[i].z = Double.valueOf(key[1]); break;
-                    default: return 0;
-                }
-
-                for(int j = 0; j < 4; j++)
-                    vector[j] = Translator.rpy_to_xyz(rollPitchYaw[j]);
-                return 1;
-            }
-            return 0;
-        }
+            for(int i = 0; i < 4; i++)
+                vector[i] = Translator.rpy_to_xyz(rollPitchYaw[i]);
+            return 1;
+        }        
     }
 
     private class BluetoothToastReceiver extends BroadcastReceiver {
