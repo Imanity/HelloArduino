@@ -93,13 +93,13 @@ public:
 
       int num[3];
       num[0] =  (int)(((vec.x() * RTMATH_RAD_TO_DEGREE) + 180) / 1.5);
-      num[1] =  (int)(vec.y() * RTMATH_RAD_TO_DEGREE) + 90;
-      num[2] =  (int)(vec.z() * RTMATH_RAD_TO_DEGREE) + 90;
+      num[1] =  (int)(((vec.y() * RTMATH_RAD_TO_DEGREE) + 180) / 1.5);
+      num[2] =  (int)(((vec.z() * RTMATH_RAD_TO_DEGREE) + 180) / 1.5);
 
       char ch[7];
       ch[6] = 0;
       for (int i = 0; i < 3; i++) {
-        ch[2 * i + 1] = 64 + (3 * ID + i) * 8 + num[i] / 64;
+        ch[2 * i + 1] = 64 + (3 * ID + i) * 4 + num[i] / 64;
         ch[2 * i] = num[i] % 64;
       }
       //x, y, z: roll, pitch, yaw

@@ -65,7 +65,7 @@ void loop() {
   if(millis() - lastDisplay >= DISPLAY_INTERVAL) {
     lastDisplay = millis();
     for (int i = 0; i < cntSensors; i++) {
-      Serial.print(sensors[i].getString());
+      sensors[i].sendToSerial();
     }
     //Serial.println();
   }
