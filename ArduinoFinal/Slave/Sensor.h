@@ -92,7 +92,7 @@ public:
     */
 
       int num[3];
-      num[0] =  (int)(vec.x() * RTMATH_RAD_TO_DEGREE) + 180;
+      num[0] =  (int)(((vec.x() * RTMATH_RAD_TO_DEGREE) + 180) / 1.5);
       num[1] =  (int)(vec.y() * RTMATH_RAD_TO_DEGREE) + 90;
       num[2] =  (int)(vec.z() * RTMATH_RAD_TO_DEGREE) + 90;
 

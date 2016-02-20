@@ -53,11 +53,11 @@ void loop() {
   //Get slave data
   int cnt = 0;
   while(Serial.available()){
-    parseSerialData(Serial.read());
+    processSerialData(Serial.read());
     cnt ++;
     if(cnt > 12) break;
   }
-  
+
   // Get sensor data
   for (int i = 0; i < cntSensors; i++) {
     sensors[i].refresh();
@@ -71,28 +71,18 @@ void loop() {
   }
 }
 
-char getName(char chr){
-  // x,y,z->0,1,2
-  // u,v,w->3,4,5
-  char names[] = {'x','y','z','u','v','w'};
-  return names[chr];
-}
+void processSerialData(char chr){
 
-
-
-void parseSerialData(char chr){
-  
-  
   static char lower = 0;
   static bool lowerAssigned = false;
-  
+
   // _ _ _ _ _ _ _ _
   // 7 6 5 4 3 2 1 0
-  
+
   // 0 x x x x x x x  as input
-  
+
   // 0 1 0 0 0 0 0 0  as mask
-  
+
   // 0 ? 0 0 0 0 0 0
   if((chr & (1<<6))){
     if(!lowerAssigned){
@@ -100,18 +90,10 @@ void parseSerialData(char chr){
     }
     // 6th bit non-zero
     // higher
-    // 0 1 x x x x x x 
-    char higher = chr & 7; // 00000111 as mask
-    char id = (chr & 56) >> 3;    // 00111000 as mask
-    char value = higher * 64 + lower;
-    char name_ = getName(id);
+
+    Serial.print(lower);
+    Serial.print(chr);
     lowerAssigned = false;
-    if(id<0 || id>5){
-      //Serial.println(chr, BIN);
-      return;
-    }
-    Serial.print("<" + String(name_) + ":" + String((int)value) + ">");
-    //if(name_ == 'z') Serial.println();
     return ;
   }else{
     //6th bit zero
@@ -121,4 +103,3 @@ void parseSerialData(char chr){
     return ;
   }
 }
-
