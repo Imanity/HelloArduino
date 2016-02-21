@@ -62,11 +62,13 @@ public class MyService extends Service {
                     myBtConnect();
                 }
                 readSerial();
+                /*
                 try {
                     Thread.sleep(20);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                */
             }
         }
     }
