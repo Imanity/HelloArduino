@@ -4,9 +4,11 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,7 @@ public class MyService extends Service {
     private boolean mBtFlag = true;
     private boolean threadFlag = false;
     private MyThread mThread = null;
+    private boolean isReconnect = false;
 
     @Override
     public void onStart(Intent intent, int startId) {
@@ -47,6 +50,7 @@ public class MyService extends Service {
         threadFlag = true;
         mThread = new MyThread();
         mThread.start();
+        registerReceiver(new ReconnectReceiver(), new IntentFilter("reconnect"));
     }
 
     public class MyThread extends Thread {
@@ -54,11 +58,11 @@ public class MyService extends Service {
         public void run() {
             super.run();
             myBtConnect();
-            //while( threadFlag ) {
             while(threadFlag) {
-                if (mBtSocket == null || !mBtSocket.isConnected()) { // Auto reconnect
-                    sendToast("Connection off, reconnecting");
+                if (isReconnect) {
+                    isReconnect = false;
                     mBtFlag = true;
+                    mBtAdapter.startDiscovery();
                     myBtConnect();
                 }
                 readSerial();
@@ -105,7 +109,6 @@ public class MyService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
             try {
-                sendToast("Connect error, Reconnecting");
                 mBtSocket.close();
                 mBtFlag = false;
             } catch (IOException e1) {
@@ -176,5 +179,12 @@ public class MyService extends Service {
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private class ReconnectReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            isReconnect = true;
+        }
     }
 }

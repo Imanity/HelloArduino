@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.unity3d.player.UnityPlayerActivity;
@@ -113,5 +114,16 @@ public class MainActivity extends UnityPlayerActivity {
             Log.v("bluetooth toast", info);
             showToast(info);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        super.onKeyDown(keyCode, event);
+        if(keyCode == KeyEvent.KEYCODE_MENU) {
+            Intent i = new Intent();
+            i.setAction("reconnect");
+            sendBroadcast(i);
+        }
+        return true;
     }
 }
