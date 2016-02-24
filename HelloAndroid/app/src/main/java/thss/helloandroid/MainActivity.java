@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.unity3d.player.UnityPlayerActivity;
@@ -13,12 +14,8 @@ import com.unity3d.player.UnityPlayerActivity;
 public class MainActivity extends UnityPlayerActivity {
     private Vector3D[] rollPitchYaw;
     private Vector3D[] vector;
-    private Vector3D[] nowVector;
 
     //private MyView view;
-
-    private boolean threadFlag = false;
-    private MyThread mThread = null;
 
     public void showToast(String str){
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
@@ -29,13 +26,9 @@ public class MainActivity extends UnityPlayerActivity {
 
         //成员变量初始化
         vector = new Vector3D[4];
-        nowVector = new Vector3D[4];
         rollPitchYaw = new Vector3D[4];
         for (int i = 0; i < 4; ++i) {
             vector[i] = new Vector3D(0, 0, 0);
-        }
-        for (int i = 0; i < 4; ++i) {
-            nowVector[i] = new Vector3D(0, 0, 0);
         }
         for (int i = 0; i < 4; ++i) {
             rollPitchYaw[i] = new Vector3D(0, 0, 0);
@@ -46,47 +39,15 @@ public class MainActivity extends UnityPlayerActivity {
         startService(i);
         registerReceiver(new BluetoothChunkReceiver(), new IntentFilter("bluetoothChunk"));
         registerReceiver(new BluetoothToastReceiver(), new IntentFilter("bluetoothToast"));
-
-        //开始多线程刷新绘图
-        threadFlag = true;
-        mThread = new MyThread();
-        mThread.start();
     }
 
     //向unity输出
     public String message() {
         String str = "";
         for (int i = 0; i < 4; ++i) {
-            str += nowVector[i].x + "," + nowVector[i].y + "," + nowVector[i].z + ",";
+            str += vector[i].x + "," + vector[i].y + "," + vector[i].z + ",";
         }
         return str;
-    }
-
-    //多线程刷新视图
-    public class MyThread extends Thread {
-        @Override
-        public void run() {
-            super.run();
-            while( threadFlag ) {
-                for (int i = 0; i < 4; ++i) {
-                    nowVector[i].x += (vector[i].x - nowVector[i].x) / 4;
-                    nowVector[i].y += (vector[i].y - nowVector[i].y) / 4;
-                    nowVector[i].z += (vector[i].z - nowVector[i].z) / 4;
-                    double length = Math.sqrt(nowVector[i].x * nowVector[i].x + nowVector[i].y * nowVector[i].y + nowVector[i].z * nowVector[i].z);
-                    if (length != 0) {
-                        nowVector[i].x = nowVector[i].x / length;
-                        nowVector[i].y = nowVector[i].y / length;
-                        nowVector[i].z = nowVector[i].z / length;
-                    }
-                }
-                //view.postInvalidate();
-                try{
-                    Thread.sleep(20);
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     //获得并解析蓝牙传输信息
@@ -153,5 +114,16 @@ public class MainActivity extends UnityPlayerActivity {
             Log.v("bluetooth toast", info);
             showToast(info);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        super.onKeyDown(keyCode, event);
+        if(keyCode == KeyEvent.KEYCODE_MENU) {
+            Intent i = new Intent();
+            i.setAction("reconnect");
+            sendBroadcast(i);
+        }
+        return true;
     }
 }

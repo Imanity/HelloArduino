@@ -47,7 +47,6 @@ function Update () {
 	stringToEdit = jo.Call.<String>("message");
 	translateMessage();
 	refreshDirection();
-	GUI.Label(new Rect(20, 70, 300, 20), stringToEdit);
 }
 
 function refreshDirection () {
