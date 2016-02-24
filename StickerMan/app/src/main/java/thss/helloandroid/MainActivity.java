@@ -220,6 +220,10 @@ public class MainActivity extends Activity {
             canvas.drawText("rpy2" + rollPitchYaw[1].stringify(), 20, 40, paint);
             canvas.drawText("rpy3" + rollPitchYaw[2].stringify(), 20, 60, paint);
             canvas.drawText("rpy4" + rollPitchYaw[3].stringify(), 20, 80, paint);
+            canvas.drawText("xyz1" + vector[0].stringify(), 20, 100, paint);
+            canvas.drawText("xyz2" + vector[1].stringify(), 20, 120, paint);
+            canvas.drawText("xyz3" + vector[2].stringify(), 20, 140, paint);
+            canvas.drawText("xyz4" + vector[3].stringify(), 20, 160, paint);
             super.onDraw(canvas);
 
             //绘制火柴人
